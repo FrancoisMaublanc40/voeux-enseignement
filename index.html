@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vœux d'enseignement</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f7f5f0; --surface: #ffffff; --accent: #1a3a5c; --accent2: #c8873a;
+      --text: #1c1c1c; --muted: #6b6b6b; --border: #e0ddd6;
+      --checked-bg: #eef3f8; --checked-border: #1a3a5c;
+      --radius: 10px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 32px 24px; }
+    header { margin-bottom: 32px; }
+    header h1 { font-family: 'DM Serif Display', serif; font-size: 1.9rem; color: var(--accent); line-height: 1.2; }
+    header p { margin-top: 6px; color: var(--muted); font-size: 0.9rem; }
+    .discipline-badge { display: inline-block; margin-top: 8px; background: var(--accent2); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--accent); margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--accent2); }
+    .cours-grid { display: flex; flex-direction: column; gap: 8px; }
+    .cours-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; align-items: center; gap: 14px; user-select: none; }
+    .cours-item:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+    .cours-item.checked { background: var(--checked-bg); border-color: var(--checked-border); }
+    .cours-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+    .cours-label { font-size: 0.88rem; line-height: 1.4; flex: 1; }
+    .cours-type { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; flex-shrink: 0; }
+    .type-CM { background: #dbeafe; color: #1d4ed8; }
+    .type-TD { background: #dcfce7; color: #166534; }
+    .type-TP { background: #fef9c3; color: #854d0e; }
+    .commentaire-wrap { margin-top: 28px; }
+    .commentaire-wrap label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+    textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; resize: vertical; min-height: 80px; background: var(--surface); color: var(--text); }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .submit-bar { margin-top: 28px; display: flex; align-items: center; gap: 16px; }
+    button.submit { background: var(--accent); color: white; border: none; padding: 12px 28px; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    button.submit:hover { background: #142d47; }
+    button.submit:disabled { background: #9aabba; cursor: not-allowed; }
+    .counter { font-size: 0.82rem; color: var(--muted); }
+    .msg { margin-top: 16px; padding: 12px 16px; border-radius: var(--radius); font-size: 0.88rem; font-weight: 500; }
+    .msg.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .msg.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .msg.info    { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .loading { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.9rem; }
+    select { width: 100%; padding: 10px 14px; border-radius: var(--radius); border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--surface); color: var(--text); margin-top: 8px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Vœux d'enseignement<br>2026–2027</h1>
+  <p>Sélectionnez les cours que vous souhaitez enseigner.</p>
+  <div id="discipline-badge" class="discipline-badge" style="display:none"></div>
+</header>
+<div id="app"><div class="loading">Chargement en cours…</div></div>
+
+<script>
+  let enseignant = null;
+  let filteredCours = [];
+  let checked = new Set();
+  let cachedVoeux = null;
+
+  grist.ready({ requiredAccess: 'full' });
+
+  async function init() {
+    try {
+      const [enseignants, cours, voeux] = await Promise.all([
+        grist.docApi.fetchTable('Enseignants'),
+        grist.docApi.fetchTable('Cours'),
+        grist.docApi.fetchTable('Voeux'),
+      ]);
+      cachedVoeux = voeux;
+      renderSelector(enseignants, cours, voeux);
+    } catch(e) {
+      render(`<div class="msg error">Erreur de chargement : ${e.message}</div>`);
+    }
+  }
+
+  function renderSelector(enseignants, cours, voeux) {
+    const ids     = enseignants.id || [];
+    const noms    = enseignants.Nom    || [];
+    const prenoms = enseignants.Prenom || [];
+    const discs   = enseignants.Discipline || [];
+
+    const opts = ids.map((id, i) =>
+      `<option value="${id}" data-disc="${discs[i]||''}">${noms[i]||''} ${prenoms[i]||''}</option>`
+    ).join('');
+
+    render(`
+      <div class="msg info" style="margin-bottom:16px">Sélectionnez votre nom pour afficher vos cours :</div>
+      <select id="sel-ens">
+        <option value="">— Choisissez votre nom —</option>
+        ${opts}
+      </select>
+      <br><br>
+      <button class="submit" id="btn-sel">Continuer</button>
+    `);
+
+    document.getElementById('btn-sel').addEventListener('click', () => {
+      const sel = document.getElementById('sel-ens');
+      const id  = parseInt(sel.value);
+      if (!id) return;
+      const idx = ids.indexOf(id);
+      enseignant = {
+        id, discipline: discs[idx]||'',
+        nom: noms[idx]||'', prenom: prenoms[idx]||'',
+      };
+      document.getElementById('discipline-badge').textContent = enseignant.discipline;
+      document.getElementById('discipline-badge').style.display = 'inline-block';
+      filterAndRender(cours, voeux, enseignant.discipline, id);
+    });
+  }
+
+  function filterAndRender(cours, voeux, discipline, ensId) {
+    const ids         = cours.id || [];
+    const modules     = cours.Module || [];
+    const types       = cours.Type || [];
+    const semestres   = cours.Semestre || [];
+    const volumes     = cours.Volume_groupe || [];
+    const disciplines = cours.Discipline || [];
+    const labels      = cours.Cours_label || [];
+
+    filteredCours = ids.map((id, i) => ({
+      id, module: modules[i], type: types[i],
+      semestre: semestres[i], volume: volumes[i],
+      discipline: disciplines[i], label: labels[i] || modules[i],
+    })).filter(c => (c.discipline||'').toLowerCase() === discipline.toLowerCase());
+
+    // Pre-check existing vœux
+    checked = new Set();
+    const voeuEns   = voeux.Enseignant || [];
+    const voeuCours = voeux.Cours_Souhaites || voeux.Cours_souhaites || voeux.Cours_Souhaités || [];
+    const existingIdx = voeuEns.findIndex(e => e === ensId);
+    if (existingIdx !== -1) {
+      const already = voeuCours[existingIdx];
+      if (Array.isArray(already)) already.forEach(id => checked.add(id));
+    }
+
+    renderForm();
+  }
+
+  function renderForm() {
+    if (filteredCours.length === 0) {
+      render(`<div class="msg error">Aucun cours trouvé pour la discipline : <strong>${enseignant.discipline}</strong></div>`);
+      return;
+    }
+
+    const bySem = {};
+    filteredCours.forEach(c => {
+      const k = c.semestre ?? '?';
+      if (!bySem[k]) bySem[k] = [];
+      bySem[k].push(c);
+    });
+
+    let html = '';
+    Object.keys(bySem).sort((a,b) => a-b).forEach(sem => {
+      html += `<div class="section-title">Semestre ${sem}</div><div class="cours-grid">`;
+      bySem[sem].forEach(c => {
+        const isChecked = checked.has(c.id);
+        html += `
+          <label class="cours-item${isChecked?' checked':''}" data-id="${c.id}">
+            <input type="checkbox" value="${c.id}" ${isChecked?'checked':''}/>
+            <span class="cours-label">${c.label || c.module}</span>
+            <span class="cours-type type-${c.type}">${c.type}</span>
+          </label>`;
+      });
+      html += `</div>`;
+    });
+
+    html += `
+      <div class="commentaire-wrap">
+        <label for="commentaire">Commentaire (optionnel)</label>
+        <textarea id="commentaire" placeholder="Contraintes, disponibilités, remarques…"></textarea>
+      </div>
+      <div class="submit-bar">
+        <button class="submit" id="btn-submit">Envoyer mes vœux</button>
+        <span class="counter" id="counter">${checked.size} cours sélectionné(s)</span>
+      </div>
+      <div id="msg"></div>`;
+
+    render(html);
+
+    document.querySelectorAll('.cours-item').forEach(item => {
+      item.addEventListener('click', e => {
+        if (e.target.tagName === 'INPUT') return;
+        const cb = item.querySelector('input');
+        cb.checked = !cb.checked;
+        toggle(parseInt(item.dataset.id), cb.checked, item);
+      });
+      item.querySelector('input').addEventListener('change', e => {
+        toggle(parseInt(item.dataset.id), e.target.checked, item);
+      });
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', submitVoeux);
+  }
+
+  function toggle(id, isChecked, item) {
+    if (isChecked) { checked.add(id); item.classList.add('checked'); }
+    else           { checked.delete(id); item.classList.remove('checked'); }
+    document.getElementById('counter').textContent = `${checked.size} cours sélectionné(s)`;
+  }
+
+  async function submitVoeux() {
+    const btn  = document.getElementById('btn-submit');
+    const msgEl = document.getElementById('msg');
+    const commentaire = document.getElementById('commentaire').value || '';
+    btn.disabled = true; btn.textContent = 'Envoi…';
+    msgEl.className = 'msg info'; msgEl.textContent = 'Envoi en cours…';
+
+    try {
+      const coursIds = Array.from(checked);
+      const voeuEns  = cachedVoeux.Enseignant || [];
+      const existingIdx = voeuEns.findIndex(e => e === enseignant.id);
+      const existingRowId = existingIdx !== -1 ? cachedVoeux.id[existingIdx] : null;
+
+      if (existingRowId) {
+        await grist.docApi.applyUserActions([['UpdateRecord', 'Voeux', existingRowId, {
+          Cours_Souhaites: ['L', ...coursIds],
+          Commentaire: commentaire,
+        }]]);
+      } else {
+        await grist.docApi.applyUserActions([['AddRecord', 'Voeux', null, {
+          Enseignant: enseignant.id,
+          Cours_Souhaites: ['L', ...coursIds],
+          Commentaire: commentaire,
+        }]]);
+      }
+
+      msgEl.className = 'msg success';
+      msgEl.textContent = `✅ Vœux enregistrés — ${coursIds.length} cours sélectionné(s).`;
+      cachedVoeux = await grist.docApi.fetchTable('Voeux');
+    } catch(e) {
+      msgEl.className = 'msg error';
+      msgEl.textContent = `Erreur : ${e.message}`;
+    }
+    btn.disabled = false; btn.textContent = 'Envoyer mes vœux';
+  }
+
+  function render(html) { document.getElementById('app').innerHTML = html; }
+
+  init();
+</script>
+</body>
+</html>
