@@ -100,11 +100,11 @@
     }
     if (!urlToken && opts && opts.token) urlToken = opts.token;
     console.log('urlToken final:', urlToken);
-    if (urlToken && !enseignantRowId && !loading) initialLoad();
+    if (!enseignantRowId && !loading) initialLoad();
   });
 
   grist.on('message', async (e) => {
-    if (e.tableId && !enseignantRowId && !loading) await initialLoad();
+    // Ne rien faire ici, initialLoad est géré par onOptions
   });
 
   async function initialLoad() {
