@@ -78,15 +78,17 @@
   let enseignantRowId = null;
   let currentTab = 'tous';
   let busy = false;
+  let loading = false;
   let enseignantsData = null;
 
   grist.ready({ requiredAccess: 'full' });
 
   grist.on('message', async (e) => {
-    if (e.tableId && !enseignantRowId) await initialLoad();
+    if (e.tableId && !enseignantRowId && !loading) await initialLoad();
   });
 
   async function initialLoad() {
+    loading = true;
     try {
       // Récupérer email
       let email = null;
@@ -112,6 +114,7 @@
           document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
           hideError();
           render();
+          loading = false;
           return;
         }
       }
@@ -121,6 +124,8 @@
 
     } catch(err) {
       showError('Erreur : ' + err.message);
+    } finally {
+      loading = false;
     }
   }
 
@@ -219,10 +224,10 @@
 
   async function doUpdate(coursRowId, newList, msg) {
     try {
+      loading = true;
       await grist.docApi.applyUserActions([
         ['UpdateRecord', 'Cours', coursRowId, { Candidats: newList.length > 0 ? ['L'].concat(newList) : null }]
       ]);
-      // Mettre à jour localement sans recharger
       var row = tableData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.candidats = newList;
       showToast(msg, 'success');
@@ -231,6 +236,7 @@
       showToast('Erreur : ' + err.message, 'error');
     } finally {
       busy = false;
+      loading = false;
     }
   }
 
