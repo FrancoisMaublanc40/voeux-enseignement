@@ -134,7 +134,7 @@
       return {
         rowId: id,
         label: labels[i] || '(sans titre)',
-        candidats: Array.isArray(cands) ? cands.slice() : (cands ? [cands] : [])
+        candidats: Array.isArray(cands) ? cands.filter(function(x){ return typeof x === 'number'; }) : (cands && typeof cands === 'number' ? [cands] : [])
       };
     });
   }
