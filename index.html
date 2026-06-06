@@ -82,7 +82,22 @@
   let loading = false;
   let enseignantsData = null;
 
+  let urlToken = null;
+
   grist.ready({ requiredAccess: 'full' });
+
+  // Récupérer le token depuis les paramètres de l'URL Grist
+  grist.onOptions(function(opts, interaction) {
+    if (!urlToken) {
+      // Tenter de lire depuis l'URL parente via document.referrer ou postMessage
+      try {
+        const parentUrl = new URL(document.referrer || window.location.href);
+        urlToken = parentUrl.searchParams.get('token');
+      } catch(e) {}
+    }
+    if (!urlToken && opts && opts.token) urlToken = opts.token;
+    if (urlToken && !enseignantRowId && !loading) initialLoad();
+  });
 
   grist.on('message', async (e) => {
     if (e.tableId && !enseignantRowId && !loading) await initialLoad();
@@ -91,9 +106,8 @@
   async function initialLoad() {
     loading = true;
     try {
-      // Lire le token dans l'URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
+      // Lire le token
+      const token = urlToken || new URLSearchParams(window.location.search).get('token');
 
       // Charger enseignants
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
