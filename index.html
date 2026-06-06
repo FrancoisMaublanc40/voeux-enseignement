@@ -1,246 +1,415 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vœux d'enseignement</title>
-  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f7f5f0; --surface: #ffffff; --accent: #1a3a5c; --accent2: #c8873a;
-      --text: #1c1c1c; --muted: #6b6b6b; --border: #e0ddd6;
-      --checked-bg: #eef3f8; --checked-border: #1a3a5c;
-      --radius: 10px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
-    }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 32px 24px; }
-    header { margin-bottom: 32px; }
-    header h1 { font-family: 'DM Serif Display', serif; font-size: 1.9rem; color: var(--accent); line-height: 1.2; }
-    header p { margin-top: 6px; color: var(--muted); font-size: 0.9rem; }
-    .discipline-badge { display: inline-block; margin-top: 8px; background: var(--accent2); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-    .section-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--accent); margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--accent2); }
-    .cours-grid { display: flex; flex-direction: column; gap: 8px; }
-    .cours-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; align-items: center; gap: 14px; user-select: none; }
-    .cours-item:hover { border-color: var(--accent); box-shadow: var(--shadow); }
-    .cours-item.checked { background: var(--checked-bg); border-color: var(--checked-border); }
-    .cours-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
-    .cours-label { font-size: 0.88rem; line-height: 1.4; flex: 1; }
-    .cours-type { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; flex-shrink: 0; }
-    .type-CM { background: #dbeafe; color: #1d4ed8; }
-    .type-TD { background: #dcfce7; color: #166534; }
-    .type-TP { background: #fef9c3; color: #854d0e; }
-    .commentaire-wrap { margin-top: 28px; }
-    .commentaire-wrap label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
-    textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; resize: vertical; min-height: 80px; background: var(--surface); color: var(--text); }
-    textarea:focus { outline: none; border-color: var(--accent); }
-    .submit-bar { margin-top: 28px; display: flex; align-items: center; gap: 16px; }
-    button.submit { background: var(--accent); color: white; border: none; padding: 12px 28px; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-    button.submit:hover { background: #142d47; }
-    button.submit:disabled { background: #9aabba; cursor: not-allowed; }
-    .counter { font-size: 0.82rem; color: var(--muted); }
-    .msg { margin-top: 16px; padding: 12px 16px; border-radius: var(--radius); font-size: 0.88rem; font-weight: 500; }
-    .msg.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .msg.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .msg.info    { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
-    .loading { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.9rem; }
-    select { width: 100%; padding: 10px 14px; border-radius: var(--radius); border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--surface); color: var(--text); margin-top: 8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidatures aux cours</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f2ec;
+    --surface: #ffffff;
+    --border: #e2ddd5;
+    --text: #1a1714;
+    --muted: #8c8278;
+    --accent: #2d6a4f;
+    --accent-light: #e8f4ee;
+    --danger: #c0392b;
+    --danger-light: #fdf0ef;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  header {
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  #user-info {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  #user-info span {
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .cours-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cours-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s;
+  }
+
+  .cours-card:hover { border-color: #c8c0b5; }
+
+  .cours-card.inscrit {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .cours-info { flex: 1; min-width: 0; }
+
+  .cours-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cours-meta {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .badge-inscrit {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: #c8e8d8;
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .btn-postuler {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-postuler:hover { background: #235c42; }
+
+  .btn-desinscrire {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid #f0c0bc;
+  }
+
+  .btn-desinscrire:hover { background: #f9dfdd; }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  #toast.success { background: var(--accent); }
+  #toast.error { background: var(--danger); }
+
+  .loader {
+    text-align: center;
+    padding: 48px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .error-box {
+    background: var(--danger-light);
+    border: 1px solid #f0c0bc;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--danger);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+</style>
 </head>
 <body>
+
 <header>
-  <h1>Vœux d'enseignement<br>2026–2027</h1>
-  <p>Sélectionnez les cours que vous souhaitez enseigner.</p>
-  <div id="discipline-badge" class="discipline-badge" style="display:none"></div>
+  <h1>Catalogue des cours</h1>
+  <div id="user-info">Chargement…</div>
 </header>
-<div id="app"><div class="loading">Chargement en cours…</div></div>
+
+<div id="error-box" class="error-box" style="display:none"></div>
+
+
+<div class="tabs">
+  <button class="tab active" onclick="setTab('tous', this)">Tous les cours</button>
+  <button class="tab" onclick="setTab('mes', this)">Mes vœux</button>
+</div>
+
+<div id="content"><div class="loader">Chargement des cours…</div></div>
+<div id="toast"></div>
 
 <script>
-  let enseignant = null;
-  let filteredCours = [];
-  let checked = new Set();
-  let cachedVoeux = null;
+  let tableData = [];       // lignes de COURS
+  let enseignantRowId = null; // rowId de l'enseignant connecté dans ENSEIGNANTS
+  let enseignantEmail = null;
+  let currentTab = 'tous';
+  let busy = false;
 
+  // ── Initialisation Grist ──────────────────────────────────────────────────
   grist.ready({ requiredAccess: 'full' });
 
-  async function init() {
+  grist.on('message', async (e) => {
+    if (e.tableId) await loadData();
+  });
+
+  async function loadData() {
     try {
-      const [enseignants, cours, voeux] = await Promise.all([
-        grist.docApi.fetchTable('Enseignants'),
-        grist.docApi.fetchTable('Cours'),
-        grist.docApi.fetchTable('Voeux'),
-      ]);
-      cachedVoeux = voeux;
-      renderSelector(enseignants, cours, voeux);
-    } catch(e) {
-      render(`<div class="msg error">Erreur de chargement : ${e.message}</div>`);
+      // 1. Récupérer l'email de l'utilisateur connecté
+      const user = await grist.docApi.getUserProfile?.() ?? null;
+      // Fallback : on essaie via getOption ou on lit depuis la table
+      enseignantEmail = user?.email ?? null;
+
+      // 2. Lire la table ENSEIGNANTS pour trouver le rowId correspondant
+      const enseignants = await grist.docApi.fetchTable('ENSEIGNANTS');
+      if (!enseignantEmail) {
+        showError("Impossible de détecter votre email. Vérifiez que vous êtes connecté à Grist.");
+        return;
+      }
+
+      const emailCol = enseignants.Email ?? enseignants.email ?? null;
+      if (!emailCol) {
+        showError("Colonne 'Email' introuvable dans la table ENSEIGNANTS.");
+        return;
+      }
+
+      const idx = emailCol.findIndex(e => e && e.toLowerCase() === enseignantEmail.toLowerCase());
+      if (idx === -1) {
+        showError(`Votre email (${enseignantEmail}) n'est pas trouvé dans la table ENSEIGNANTS.`);
+        return;
+      }
+      enseignantRowId = enseignants.id[idx];
+
+      // Afficher le nom si disponible
+      const nomCol = enseignants.Nom ?? enseignants.nom ?? enseignants.Prenom ?? null;
+      const nomAffiche = nomCol ? nomCol[idx] : enseignantEmail;
+      document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
+
+      // 3. Lire la table COURS
+      const cours = await grist.docApi.fetchTable('COURS');
+      tableData = buildRows(cours);
+
+      hideError();
+      renderList();
+    } catch (err) {
+      showError("Erreur de chargement : " + err.message);
     }
   }
 
-  function renderSelector(enseignants, cours, voeux) {
-    const ids     = enseignants.id || [];
-    const noms    = enseignants.Nom    || [];
-    const prenoms = enseignants.Prenom || [];
-    const discs   = enseignants.Discipline || [];
+  function buildRows(cours) {
+    const ids = cours.id;
+    const labels = cours.Cours_label ?? cours.cours_label ?? [];
+    // Candidats est une colonne de type RefList → tableau de tableaux de rowIds
+    const candidats = cours.Candidats ?? cours.candidats ?? [];
 
-    const opts = ids.map((id, i) =>
-      `<option value="${id}" data-disc="${discs[i]||''}">${noms[i]||''} ${prenoms[i]||''}</option>`
-    ).join('');
-
-    render(`
-      <div class="msg info" style="margin-bottom:16px">Sélectionnez votre nom pour afficher vos cours :</div>
-      <select id="sel-ens">
-        <option value="">— Choisissez votre nom —</option>
-        ${opts}
-      </select>
-      <br><br>
-      <button class="submit" id="btn-sel">Continuer</button>
-    `);
-
-    document.getElementById('btn-sel').addEventListener('click', () => {
-      const sel = document.getElementById('sel-ens');
-      const id  = parseInt(sel.value);
-      if (!id) return;
-      const idx = ids.indexOf(id);
-      enseignant = {
-        id, discipline: discs[idx]||'',
-        nom: noms[idx]||'', prenom: prenoms[idx]||'',
-      };
-      document.getElementById('discipline-badge').textContent = enseignant.discipline;
-      document.getElementById('discipline-badge').style.display = 'inline-block';
-      filterAndRender(cours, voeux, enseignant.discipline, id);
-    });
+    return ids.map((id, i) => ({
+      rowId: id,
+      label: labels[i] ?? '(sans titre)',
+      candidats: Array.isArray(candidats[i]) ? candidats[i] : (candidats[i] ? [candidats[i]] : []),
+    }));
   }
 
-  function filterAndRender(cours, voeux, discipline, ensId) {
-    const ids         = cours.id || [];
-    const modules     = cours.Module || [];
-    const types       = cours.Type || [];
-    const semestres   = cours.Semestre || [];
-    const volumes     = cours.Volume_groupe || [];
-    const disciplines = cours.Discipline || [];
-    const labels      = cours.Cours_label || [];
-
-    filteredCours = ids.map((id, i) => ({
-      id, module: modules[i], type: types[i],
-      semestre: semestres[i], volume: volumes[i],
-      discipline: disciplines[i], label: labels[i] || modules[i],
-    })).filter(c => (c.discipline||'').toLowerCase() === discipline.toLowerCase());
-
-    // Pre-check existing vœux
-    checked = new Set();
-    const voeuEns   = voeux.Enseignant || [];
-    const voeuCours = voeux.Cours_Souhaites || voeux.Cours_souhaites || voeux.Cours_Souhaités || [];
-    const existingIdx = voeuEns.findIndex(e => e === ensId);
-    if (existingIdx !== -1) {
-      const already = voeuCours[existingIdx];
-      if (Array.isArray(already)) already.forEach(id => checked.add(id));
-    }
-
-    renderForm();
+  // ── Rendu ─────────────────────────────────────────────────────────────────
+  function setTab(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderList();
   }
 
-  function renderForm() {
-    if (filteredCours.length === 0) {
-      render(`<div class="msg error">Aucun cours trouvé pour la discipline : <strong>${enseignant.discipline}</strong></div>`);
+  function renderList() {
+    let rows = [...tableData];
+    if (currentTab === 'mes') rows = rows.filter(r => r.candidats.includes(enseignantRowId));
+
+    const el = document.getElementById('content');
+    if (rows.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        <div>${currentTab === 'mes' ? 'Vous n\'avez posé aucun vœu.' : 'Aucun cours trouvé.'}</div>
+      </div>`;
       return;
     }
 
-    const bySem = {};
-    filteredCours.forEach(c => {
-      const k = c.semestre ?? '?';
-      if (!bySem[k]) bySem[k] = [];
-      bySem[k].push(c);
-    });
-
-    let html = '';
-    Object.keys(bySem).sort((a,b) => a-b).forEach(sem => {
-      html += `<div class="section-title">Semestre ${sem}</div><div class="cours-grid">`;
-      bySem[sem].forEach(c => {
-        const isChecked = checked.has(c.id);
-        html += `
-          <label class="cours-item${isChecked?' checked':''}" data-id="${c.id}">
-            <input type="checkbox" value="${c.id}" ${isChecked?'checked':''}/>
-            <span class="cours-label">${c.label || c.module}</span>
-            <span class="cours-type type-${c.type}">${c.type}</span>
-          </label>`;
-      });
-      html += `</div>`;
-    });
-
-    html += `
-      <div class="commentaire-wrap">
-        <label for="commentaire">Commentaire (optionnel)</label>
-        <textarea id="commentaire" placeholder="Contraintes, disponibilités, remarques…"></textarea>
-      </div>
-      <div class="submit-bar">
-        <button class="submit" id="btn-submit">Envoyer mes vœux</button>
-        <span class="counter" id="counter">${checked.size} cours sélectionné(s)</span>
-      </div>
-      <div id="msg"></div>`;
-
-    render(html);
-
-    document.querySelectorAll('.cours-item').forEach(item => {
-      item.addEventListener('click', e => {
-        if (e.target.tagName === 'INPUT') return;
-        const cb = item.querySelector('input');
-        cb.checked = !cb.checked;
-        toggle(parseInt(item.dataset.id), cb.checked, item);
-      });
-      item.querySelector('input').addEventListener('change', e => {
-        toggle(parseInt(item.dataset.id), e.target.checked, item);
-      });
-    });
-
-    document.getElementById('btn-submit').addEventListener('click', submitVoeux);
+    el.innerHTML = `<div class="cours-list">${rows.map(cardHTML).join('')}</div>`;
   }
 
-  function toggle(id, isChecked, item) {
-    if (isChecked) { checked.add(id); item.classList.add('checked'); }
-    else           { checked.delete(id); item.classList.remove('checked'); }
-    document.getElementById('counter').textContent = `${checked.size} cours sélectionné(s)`;
-  }
+  function cardHTML(row) {
+    const inscrit = row.candidats.includes(enseignantRowId);
+    const nbCandidats = row.candidats.length;
+    const meta = nbCandidats === 0 ? 'Aucun candidat' : `${nbCandidats} candidat${nbCandidats > 1 ? 's' : ''}`;
 
-  async function submitVoeux() {
-    const btn  = document.getElementById('btn-submit');
-    const msgEl = document.getElementById('msg');
-    const commentaire = document.getElementById('commentaire').value || '';
-    btn.disabled = true; btn.textContent = 'Envoi…';
-    msgEl.className = 'msg info'; msgEl.textContent = 'Envoi en cours…';
-
-    try {
-      const coursIds = Array.from(checked);
-      const voeuEns  = cachedVoeux.Enseignant || [];
-      const existingIdx = voeuEns.findIndex(e => e === enseignant.id);
-      const existingRowId = existingIdx !== -1 ? cachedVoeux.id[existingIdx] : null;
-
-      if (existingRowId) {
-        await grist.docApi.applyUserActions([['UpdateRecord', 'Voeux', existingRowId, {
-          Cours_Souhaites: ['L', ...coursIds],
-          Commentaire: commentaire,
-        }]]);
-      } else {
-        await grist.docApi.applyUserActions([['AddRecord', 'Voeux', null, {
-          Enseignant: enseignant.id,
-          Cours_Souhaites: ['L', ...coursIds],
-          Commentaire: commentaire,
-        }]]);
+    return `<div class="cours-card ${inscrit ? 'inscrit' : ''}">
+      <div class="cours-info">
+        <div class="cours-label">${esc(row.label)}</div>
+        <div class="cours-meta">${meta}</div>
+      </div>
+      ${inscrit ? `<span class="badge-inscrit">✓ Inscrit</span>` : ''}
+      ${inscrit
+        ? `<button class="btn btn-desinscrire" onclick="desinscrire(${row.rowId})">Me désinscrire</button>`
+        : `<button class="btn btn-postuler" onclick="postuler(${row.rowId})">Je postule</button>`
       }
-
-      msgEl.className = 'msg success';
-      msgEl.textContent = `✅ Vœux enregistrés — ${coursIds.length} cours sélectionné(s).`;
-      cachedVoeux = await grist.docApi.fetchTable('Voeux');
-    } catch(e) {
-      msgEl.className = 'msg error';
-      msgEl.textContent = `Erreur : ${e.message}`;
-    }
-    btn.disabled = false; btn.textContent = 'Envoyer mes vœux';
+    </div>`;
   }
 
-  function render(html) { document.getElementById('app').innerHTML = html; }
+  // ── Actions ───────────────────────────────────────────────────────────────
+  async function postuler(coursRowId) {
+    if (busy || !enseignantRowId) return;
+    busy = true;
+    const row = tableData.find(r => r.rowId === coursRowId);
+    const newList = [...row.candidats, enseignantRowId];
+    await updateCandidats(coursRowId, row, newList, `Vœu enregistré pour « ${row.label} »`, 'success');
+  }
 
-  init();
+  async function desinscrire(coursRowId) {
+    if (busy || !enseignantRowId) return;
+    busy = true;
+    const row = tableData.find(r => r.rowId === coursRowId);
+    const newList = row.candidats.filter(id => id !== enseignantRowId);
+    await updateCandidats(coursRowId, row, newList, `Désinscription de « ${row.label} » effectuée`, 'success');
+  }
+
+  async function updateCandidats(coursRowId, row, newList, msg, type) {
+    try {
+      await grist.docApi.applyUserActions([
+        ['UpdateRecord', 'COURS', coursRowId, { Candidats: ['L', ...newList] }]
+      ]);
+      row.candidats = newList;
+      showToast(msg, type);
+      renderList();
+    } catch (err) {
+      showToast('Erreur : ' + err.message, 'error');
+    } finally {
+      busy = false;
+    }
+  }
+
+  // ── Utilitaires ───────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.className = '', 3000);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-box');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  // Démarrage
+  loadData();
 </script>
 </body>
 </html>
