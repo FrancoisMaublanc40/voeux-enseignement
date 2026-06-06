@@ -7,226 +7,47 @@
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #f5f2ec;
-    --surface: #ffffff;
-    --border: #e2ddd5;
-    --text: #1a1714;
-    --muted: #8c8278;
-    --accent: #2d6a4f;
-    --accent-light: #e8f4ee;
-    --danger: #c0392b;
-    --danger-light: #fdf0ef;
+    --bg: #f5f2ec; --surface: #ffffff; --border: #e2ddd5;
+    --text: #1a1714; --muted: #8c8278; --accent: #2d6a4f;
+    --accent-light: #e8f4ee; --danger: #c0392b; --danger-light: #fdf0ef;
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
   }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 24px;
-  }
-
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
   header { margin-bottom: 28px; }
-
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-    font-weight: 400;
-    color: var(--text);
-    line-height: 1.2;
-  }
-
-  #user-info {
-    margin-top: 6px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  #user-info span {
-    font-weight: 500;
-    color: var(--accent);
-  }
-
-  .selector-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-
-  .selector-box label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--text);
-  }
-
-  .selector-box select {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    background: var(--bg);
-    outline: none;
-    cursor: pointer;
-  }
-
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
+  #user-info { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  #user-info span { font-weight: 500; color: var(--accent); }
+  .selector-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .selector-box label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .selector-box select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
   .selector-box select:focus { border-color: var(--accent); }
-
-  .tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px;
-  }
-
-  .tab {
-    flex: 1;
-    padding: 8px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
+  .tab { flex: 1; padding: 8px; border: none; border-radius: 6px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.18s; }
   .tab.active { background: var(--accent); color: #fff; }
-
   .cours-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .cours-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-shadow: var(--shadow);
-    transition: border-color 0.2s;
-  }
-
+  .cours-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: var(--shadow); transition: border-color 0.2s; }
   .cours-card:hover { border-color: #c8c0b5; }
-
-  .cours-card.inscrit {
-    border-color: var(--accent);
-    background: var(--accent-light);
-  }
-
+  .cours-card.inscrit { border-color: var(--accent); background: var(--accent-light); }
   .cours-info { flex: 1; min-width: 0; }
-
-  .cours-label {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .cours-meta {
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .badge-inscrit {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent);
-    background: #c8e8d8;
-    border-radius: 20px;
-    padding: 2px 10px;
-    white-space: nowrap;
-  }
-
-  .btn {
-    border: none;
-    border-radius: 7px;
-    padding: 8px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s;
-    white-space: nowrap;
-  }
-
+  .cours-label { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cours-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .badge-inscrit { font-size: 11px; font-weight: 600; color: var(--accent); background: #c8e8d8; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .btn { border: none; border-radius: 7px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
   .btn-postuler { background: var(--accent); color: #fff; }
   .btn-postuler:hover { background: #235c42; }
-
-  .btn-desinscrire {
-    background: var(--danger-light);
-    color: var(--danger);
-    border: 1px solid #f0c0bc;
-  }
+  .btn-desinscrire { background: var(--danger-light); color: var(--danger); border: 1px solid #f0c0bc; }
   .btn-desinscrire:hover { background: #f9dfdd; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
   .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
-
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--text);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 0;
-    transition: all 0.3s ease;
-    pointer-events: none;
-    z-index: 100;
-  }
-
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 100; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.success { background: var(--accent); }
   #toast.error { background: var(--danger); }
-
-  .loader {
-    text-align: center;
-    padding: 48px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  .error-box {
-    background: var(--danger-light);
-    border: 1px solid #f0c0bc;
-    border-radius: 8px;
-    padding: 14px 18px;
-    color: var(--danger);
-    font-size: 13px;
-    margin-bottom: 16px;
-  }
+  .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+  .error-box { background: var(--danger-light); border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -255,7 +76,6 @@
 <script>
   let tableData = [];
   let enseignantRowId = null;
-  let enseignantEmail = null;
   let currentTab = 'tous';
   let busy = false;
   let enseignantsData = null;
@@ -263,177 +83,178 @@
   grist.ready({ requiredAccess: 'full' });
 
   grist.on('message', async (e) => {
-    if (e.tableId) await loadData();
+    if (e.tableId) await initialLoad();
   });
 
-  async function loadData() {
+  async function initialLoad() {
     try {
-      // 1. Tenter de récupérer l'email via plusieurs méthodes
+      // Récupérer email
       let email = null;
-      try {
-        const p = await grist.getUserProfile();
-        email = p?.email ?? null;
-      } catch(e) {}
+      try { const p = await grist.getUserProfile(); email = p && p.email ? p.email : null; } catch(e) {}
       if (!email) {
-        try {
-          const p = await grist.docApi.getUserProfile();
-          email = p?.email ?? null;
-        } catch(e) {}
+        try { const p = await grist.docApi.getUserProfile(); email = p && p.email ? p.email : null; } catch(e) {}
       }
 
-      // 2. Charger la table Enseignants
+      // Charger enseignants
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
-      const emailCol = enseignantsData.Email ?? enseignantsData.email ?? null;
 
-      // 3. Charger les cours
-      const cours = await grist.docApi.fetchTable('Cours');
-      tableData = buildRows(cours);
-      hideError();
+      // Charger cours
+      await reloadCours();
 
+      // Identifier l'enseignant
+      const emailCol = enseignantsData.Email || enseignantsData.email || null;
       if (email && emailCol) {
-        enseignantEmail = email;
-        const idx = emailCol.findIndex(e => e && e.toLowerCase() === email.toLowerCase());
+        const idx = emailCol.findIndex(function(e) { return e && e.toLowerCase() === email.toLowerCase(); });
         if (idx !== -1) {
           enseignantRowId = enseignantsData.id[idx];
-          const nomCol = enseignantsData.Nom ?? enseignantsData.nom ?? enseignantsData.Prenom ?? null;
+          const nomCol = enseignantsData.Nom || enseignantsData.nom || enseignantsData.Prenom || null;
           const nomAffiche = nomCol ? nomCol[idx] : email;
-          document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
-          renderList();
+          document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+          hideError();
+          render();
           return;
         }
       }
 
-      // Fallback : sélecteur manuel
-      showEnseignantSelector(enseignantsData);
+      // Fallback sélecteur manuel
+      afficherSelecteur();
 
-    } catch (err) {
-      showError("Erreur de chargement : " + err.message);
+    } catch(err) {
+      showError('Erreur : ' + err.message);
     }
   }
 
-  function showEnseignantSelector(enseignants) {
-    document.getElementById('user-info').textContent = "Veuillez vous identifier";
-    const nomCol = enseignants.Nom ?? enseignants.nom ?? enseignants.Prenom ?? null;
-    const emailCol = enseignants.Email ?? enseignants.email ?? [];
-    const sel = document.getElementById('enseignant-select');
-    enseignants.id.forEach((id, i) => {
-      const opt = document.createElement('option');
+  async function reloadCours() {
+    const cours = await grist.docApi.fetchTable('Cours');
+    const ids = cours.id;
+    const labels = cours.Cours_label || cours.cours_label || [];
+    const candidats = cours.Candidats || cours.candidats || [];
+    tableData = ids.map(function(id, i) {
+      var cands = candidats[i];
+      return {
+        rowId: id,
+        label: labels[i] || '(sans titre)',
+        candidats: Array.isArray(cands) ? cands.slice() : (cands ? [cands] : [])
+      };
+    });
+  }
+
+  function afficherSelecteur() {
+    document.getElementById('user-info').textContent = 'Veuillez vous identifier';
+    var nomCol = enseignantsData.Nom || enseignantsData.nom || enseignantsData.Prenom || null;
+    var emailCol = enseignantsData.Email || enseignantsData.email || [];
+    var sel = document.getElementById('enseignant-select');
+    enseignantsData.id.forEach(function(id, i) {
+      var opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = nomCol ? nomCol[i] : (emailCol[i] ?? `Enseignant #${id}`);
+      opt.textContent = nomCol ? nomCol[i] : (emailCol[i] || ('Enseignant #' + id));
       sel.appendChild(opt);
     });
     document.getElementById('selector-box').style.display = 'block';
     document.getElementById('content').innerHTML = '';
   }
 
-  function onSelectEnseignant(rowId) {
-    if (!rowId) return;
-    enseignantRowId = parseInt(rowId);
-    const nomCol = enseignantsData.Nom ?? enseignantsData.nom ?? enseignantsData.Prenom ?? null;
-    const idx = enseignantsData.id.indexOf(enseignantRowId);
-    const nomAffiche = nomCol ? nomCol[idx] : `Enseignant #${enseignantRowId}`;
-    document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
+  function onSelectEnseignant(val) {
+    if (!val) return;
+    enseignantRowId = parseInt(val);
+    var nomCol = enseignantsData.Nom || enseignantsData.nom || enseignantsData.Prenom || null;
+    var idx = enseignantsData.id.indexOf(enseignantRowId);
+    var nomAffiche = nomCol ? nomCol[idx] : ('Enseignant #' + enseignantRowId);
+    document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
     document.getElementById('selector-box').style.display = 'none';
-    renderList();
-  }
-
-  function buildRows(cours) {
-    const ids = cours.id;
-    const labels = cours.Cours_label ?? cours.cours_label ?? [];
-    const candidats = cours.Candidats ?? cours.candidats ?? [];
-    return ids.map((id, i) => ({
-      rowId: id,
-      label: labels[i] ?? '(sans titre)',
-      candidats: Array.isArray(candidats[i]) ? candidats[i] : (candidats[i] ? [candidats[i]] : []),
-    }));
+    render();
   }
 
   function setTab(tab, btn) {
     currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
     btn.classList.add('active');
-    renderList();
+    render();
   }
 
-  function renderList() {
+  function render() {
     if (!enseignantRowId) return;
-    let rows = [...tableData];
-    if (currentTab === 'mes') rows = rows.filter(r => r.candidats.includes(enseignantRowId));
-
-    const el = document.getElementById('content');
+    var rows = tableData.slice();
+    if (currentTab === 'mes') {
+      rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
+    }
+    var el = document.getElementById('content');
     if (rows.length === 0) {
-      el.innerHTML = `<div class="empty-state">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-        <div>${currentTab === 'mes' ? "Vous n'avez posé aucun vœu." : 'Aucun cours trouvé.'}</div>
-      </div>`;
+      el.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><div>' + (currentTab === 'mes' ? "Vous n'avez posé aucun vœu." : 'Aucun cours trouvé.') + '</div></div>';
       return;
     }
-    el.innerHTML = `<div class="cours-list">${rows.map(cardHTML).join('')}</div>`;
+    el.innerHTML = '<div class="cours-list">' + rows.map(cardHTML).join('') + '</div>';
   }
 
   function cardHTML(row) {
-    const inscrit = row.candidats.includes(enseignantRowId);
-    const nb = row.candidats.length;
-    const meta = nb === 0 ? 'Aucun candidat' : `${nb} candidat${nb > 1 ? 's' : ''}`;
-    return `<div class="cours-card ${inscrit ? 'inscrit' : ''}">
-      <div class="cours-info">
-        <div class="cours-label">${esc(row.label)}</div>
-        <div class="cours-meta">${meta}</div>
-      </div>
-      ${inscrit ? `<span class="badge-inscrit">✓ Inscrit</span>` : ''}
-      ${inscrit
-        ? `<button class="btn btn-desinscrire" onclick="desinscrire(${row.rowId})">Me désinscrire</button>`
-        : `<button class="btn btn-postuler" onclick="postuler(${row.rowId})">Je postule</button>`}
-    </div>`;
+    var inscrit = row.candidats.indexOf(enseignantRowId) !== -1;
+    var nb = row.candidats.length;
+    var meta = nb === 0 ? 'Aucun candidat' : (nb + ' candidat' + (nb > 1 ? 's' : ''));
+    return '<div class="cours-card' + (inscrit ? ' inscrit' : '') + '">'
+      + '<div class="cours-info"><div class="cours-label">' + esc(row.label) + '</div><div class="cours-meta">' + meta + '</div></div>'
+      + (inscrit ? '<span class="badge-inscrit">✓ Inscrit</span>' : '')
+      + (inscrit
+          ? '<button class="btn btn-desinscrire" onclick="desinscrire(' + row.rowId + ')">Me désinscrire</button>'
+          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Je postule</button>')
+      + '</div>';
   }
 
   async function postuler(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
-    const row = tableData.find(r => r.rowId === coursRowId);
-    await updateCandidats(coursRowId, row, [...row.candidats, enseignantRowId], `Vœu enregistré pour « ${row.label} »`, 'success');
+    disableButtons();
+    var row = tableData.find(function(r) { return r.rowId === coursRowId; });
+    var newList = row.candidats.concat([enseignantRowId]);
+    await doUpdate(coursRowId, newList, 'Vœu enregistré pour « ' + row.label + ' »');
   }
 
   async function desinscrire(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
-    const row = tableData.find(r => r.rowId === coursRowId);
-    await updateCandidats(coursRowId, row, row.candidats.filter(id => id !== enseignantRowId), `Désinscription de « ${row.label} » effectuée`, 'success');
+    disableButtons();
+    var row = tableData.find(function(r) { return r.rowId === coursRowId; });
+    var newList = row.candidats.filter(function(id) { return id !== enseignantRowId; });
+    await doUpdate(coursRowId, newList, 'Désinscription effectuée');
   }
 
-  async function updateCandidats(coursRowId, row, newList, msg, type) {
+  async function doUpdate(coursRowId, newList, msg) {
     try {
       await grist.docApi.applyUserActions([
-        ["UpdateRecord", "Cours", coursRowId, { Candidats: ["L", ...newList] }]
+        ['UpdateRecord', 'Cours', coursRowId, { Candidats: ['L'].concat(newList) }]
       ]);
-      await new Promise(r => setTimeout(r, 500));
-      const cours = await grist.docApi.fetchTable("Cours");
-      tableData = buildRows(cours);
-      showToast(msg, type);
-      renderList();
-    } catch (err) {
-      showToast("Erreur : " + err.message, "error");
+      // Mettre à jour localement sans recharger
+      var row = tableData.find(function(r) { return r.rowId === coursRowId; });
+      if (row) row.candidats = newList;
+      showToast(msg, 'success');
+      render();
+    } catch(err) {
+      showToast('Erreur : ' + err.message, 'error');
     } finally {
       busy = false;
     }
+  }
+
+  function disableButtons() {
+    document.querySelectorAll('.btn').forEach(function(b) { b.disabled = true; });
   }
 
   function esc(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  let toastTimer;
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
+  var toastTimer;
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
     t.textContent = msg;
-    t.className = `show ${type}`;
+    t.className = 'show ' + (type || '');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.className = '', 3000);
+    toastTimer = setTimeout(function() { t.className = ''; }, 3000);
   }
 
   function showError(msg) {
-    document.getElementById('error-box').textContent = msg;
-    document.getElementById('error-box').style.display = 'block';
+    var el = document.getElementById('error-box');
+    el.textContent = msg;
+    el.style.display = 'block';
     document.getElementById('content').innerHTML = '';
   }
 
@@ -441,7 +262,7 @@
     document.getElementById('error-box').style.display = 'none';
   }
 
-  loadData();
+  initialLoad();
 </script>
 </body>
 </html>
