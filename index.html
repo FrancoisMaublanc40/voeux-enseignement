@@ -94,14 +94,13 @@
       let email = null;
       try {
         const token = await grist.docApi.getAccessToken({ readOnly: true });
-        console.log('baseUrl:', token.baseUrl);
-        // Appel API REST via le baseUrl du document (même origine que Grist)
-        const docUrl = token.baseUrl;
-        const resp = await fetch(docUrl + '/users/me', {
+        const baseUrl = 'https://grist.numerique.gouv.fr/o/docs/api';
+        const resp = await fetch(baseUrl + '/profile', {
           headers: { 'Authorization': 'Bearer ' + token.token }
         });
+        console.log('profile status:', resp.status);
         const data = await resp.json();
-        console.log('users/me:', JSON.stringify(data));
+        console.log('profile:', JSON.stringify(data));
         email = data.email || null;
       } catch(e) {
         console.log('error:', e.message);
