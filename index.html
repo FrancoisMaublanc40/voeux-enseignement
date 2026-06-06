@@ -261,7 +261,7 @@
       enseignantEmail = user?.email ?? null;
 
       // 2. Lire la table ENSEIGNANTS pour trouver le rowId correspondant
-      const enseignants = await grist.docApi.fetchTable('ENSEIGNANTS');
+      const enseignants = await grist.docApi.fetchTable('Enseignants');
       if (!enseignantEmail) {
         showError("Impossible de détecter votre email. Vérifiez que vous êtes connecté à Grist.");
         return;
@@ -286,7 +286,7 @@
       document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
 
       // 3. Lire la table COURS
-      const cours = await grist.docApi.fetchTable('COURS');
+      const cours = await grist.docApi.fetchTable('Cours');
       tableData = buildRows(cours);
 
       hideError();
@@ -371,7 +371,7 @@
   async function updateCandidats(coursRowId, row, newList, msg, type) {
     try {
       await grist.docApi.applyUserActions([
-        ['UpdateRecord', 'COURS', coursRowId, { Candidats: ['L', ...newList] }]
+        ['UpdateRecord', 'Cours', coursRowId, { Candidats: ['L', ...newList] }]
       ]);
       row.candidats = newList;
       showToast(msg, type);
