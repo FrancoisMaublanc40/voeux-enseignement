@@ -104,40 +104,29 @@
   async function initialLoad() {
     loading = true;
     try {
-      // Lire le token
-      const token = urlToken || new URLSearchParams(window.location.search).get('token');
-
-      // Charger enseignants
+      // Charger enseignants — grâce aux permissions, une seule ligne est visible
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
 
       // Charger cours
       await reloadCours();
 
-      if (token) {
-        // Identifier l'enseignant via son token
-        const tokenCol = enseignantsData.Token || enseignantsData.token || null;
-        if (tokenCol) {
-          const idx = tokenCol.findIndex(function(t) { return t === token; });
-          if (idx !== -1) {
-            enseignantRowId = enseignantsData.id[idx];
-            const disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
-            enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
-            const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
-            const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
-            const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
-            document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
-            hideError();
-            render();
-            loading = false;
-            return;
-          }
-        }
-        showError('Token non reconnu. Vérifiez votre lien.');
+      if (enseignantsData.id.length === 1) {
+        // Identification automatique via la seule ligne visible
+        const idx = 0;
+        enseignantRowId = enseignantsData.id[idx];
+        const disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
+        enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
+        const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
+        const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
+        const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
+        document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+        hideError();
+        render();
         loading = false;
         return;
       }
 
-      // Pas de token : sélecteur manuel
+      // Fallback sélecteur manuel si plusieurs lignes visibles
       afficherSelecteur();
 
     } catch(err) {
