@@ -94,14 +94,18 @@
       let email = null;
       try {
         const token = await grist.docApi.getAccessToken({ readOnly: true });
-        console.log('token baseUrl:', token.baseUrl);
-        const resp = await fetch(token.baseUrl.replace(/\/api\/docs\/.*/, '/api/profile'), {
+        console.log('baseUrl:', token.baseUrl);
+        // Appel API REST via le baseUrl du document (même origine que Grist)
+        const docUrl = token.baseUrl;
+        const resp = await fetch(docUrl + '/users/me', {
           headers: { 'Authorization': 'Bearer ' + token.token }
         });
-        const profile = await resp.json();
-        console.log('profile:', JSON.stringify(profile));
-        email = profile.email || null;
-      } catch(e) { console.log('getAccessToken error:', e.message); }
+        const data = await resp.json();
+        console.log('users/me:', JSON.stringify(data));
+        email = data.email || null;
+      } catch(e) {
+        console.log('error:', e.message);
+      }
       console.log('final email:', email);
 
       // Charger enseignants
