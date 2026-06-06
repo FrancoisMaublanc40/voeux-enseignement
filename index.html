@@ -91,22 +91,9 @@
   async function initialLoad() {
     loading = true;
     try {
-      // Récupérer email
-      let email = null;
-      try {
-        const token = await grist.docApi.getAccessToken({ readOnly: true });
-        const baseUrl = 'https://grist.numerique.gouv.fr/o/docs/api';
-        const resp = await fetch(baseUrl + '/profile', {
-          headers: { 'Authorization': 'Bearer ' + token.token }
-        });
-        console.log('profile status:', resp.status);
-        const data = await resp.json();
-        console.log('profile:', JSON.stringify(data));
-        email = data.email || null;
-      } catch(e) {
-        console.log('error:', e.message);
-      }
-      console.log('final email:', email);
+      // Lire le token dans l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
 
       // Charger enseignants
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
@@ -114,26 +101,31 @@
       // Charger cours
       await reloadCours();
 
-      // Identifier l'enseignant
-      const emailCol = enseignantsData.Email || enseignantsData.email || null;
-      if (email && emailCol) {
-        const idx = emailCol.findIndex(function(e) { return e && e.toLowerCase() === email.toLowerCase(); });
-        if (idx !== -1) {
-          enseignantRowId = enseignantsData.id[idx];
-          const disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
-          enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
-          const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
-          const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
-          const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || email;
-          document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
-          hideError();
-          render();
-          loading = false;
-          return;
+      if (token) {
+        // Identifier l'enseignant via son token
+        const tokenCol = enseignantsData.Token || enseignantsData.token || null;
+        if (tokenCol) {
+          const idx = tokenCol.findIndex(function(t) { return t === token; });
+          if (idx !== -1) {
+            enseignantRowId = enseignantsData.id[idx];
+            const disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
+            enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
+            const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
+            const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
+            const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
+            document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+            hideError();
+            render();
+            loading = false;
+            return;
+          }
         }
+        showError('Token non reconnu. Vérifiez votre lien.');
+        loading = false;
+        return;
       }
 
-      // Fallback sélecteur manuel
+      // Pas de token : sélecteur manuel
       afficherSelecteur();
 
     } catch(err) {
