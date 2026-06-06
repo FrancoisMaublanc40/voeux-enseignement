@@ -88,17 +88,11 @@
 
   // Récupérer le token depuis les paramètres de l'URL Grist
   grist.onOptions(function(opts, interaction) {
-    console.log('onOptions opts:', JSON.stringify(opts));
-    console.log('referrer:', document.referrer);
-    console.log('location:', window.location.href);
-    if (!urlToken) {
-      try {
-        const parentUrl = new URL(document.referrer || window.location.href);
-        urlToken = parentUrl.searchParams.get('token');
-        console.log('token from URL:', urlToken);
-      } catch(e) {}
+    console.log('opts:', JSON.stringify(opts));
+    console.log('interaction:', JSON.stringify(interaction));
+    if (!urlToken && interaction && interaction.linkKeys && interaction.linkKeys.token) {
+      urlToken = interaction.linkKeys.token;
     }
-    if (!urlToken && opts && opts.token) urlToken = opts.token;
     console.log('urlToken final:', urlToken);
     if (!enseignantRowId && !loading) initialLoad();
   });
