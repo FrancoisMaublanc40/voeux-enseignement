@@ -31,9 +31,7 @@
     padding: 24px;
   }
 
-  header {
-    margin-bottom: 28px;
-  }
+  header { margin-bottom: 28px; }
 
   header h1 {
     font-family: 'DM Serif Display', serif;
@@ -47,13 +45,43 @@
     margin-top: 6px;
     font-size: 13px;
     color: var(--muted);
-    font-weight: 400;
   }
 
   #user-info span {
     font-weight: 500;
     color: var(--accent);
   }
+
+  .selector-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .selector-box label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .selector-box select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .selector-box select:focus { border-color: var(--accent); }
 
   .tabs {
     display: flex;
@@ -79,16 +107,9 @@
     transition: all 0.18s;
   }
 
-  .tab.active {
-    background: var(--accent);
-    color: #fff;
-  }
+  .tab.active { background: var(--accent); color: #fff; }
 
-  .cours-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .cours-list { display: flex; flex-direction: column; gap: 10px; }
 
   .cours-card {
     background: var(--surface);
@@ -149,11 +170,7 @@
     white-space: nowrap;
   }
 
-  .btn-postuler {
-    background: var(--accent);
-    color: #fff;
-  }
-
+  .btn-postuler { background: var(--accent); color: #fff; }
   .btn-postuler:hover { background: #235c42; }
 
   .btn-desinscrire {
@@ -161,13 +178,8 @@
     color: var(--danger);
     border: 1px solid #f0c0bc;
   }
-
   .btn-desinscrire:hover { background: #f9dfdd; }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .empty-state {
     text-align: center;
@@ -195,11 +207,7 @@
     z-index: 100;
   }
 
-  #toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.success { background: var(--accent); }
   #toast.error { background: var(--danger); }
 
@@ -229,7 +237,12 @@
 </header>
 
 <div id="error-box" class="error-box" style="display:none"></div>
-
+<div id="selector-box" style="display:none" class="selector-box">
+  <label>Qui êtes-vous ?</label>
+  <select id="enseignant-select" onchange="onSelectEnseignant(this.value)">
+    <option value="">-- Sélectionnez votre nom --</option>
+  </select>
+</div>
 
 <div class="tabs">
   <button class="tab active" onclick="setTab('tous', this)">Tous les cours</button>
@@ -240,13 +253,13 @@
 <div id="toast"></div>
 
 <script>
-  let tableData = [];       // lignes de COURS
-  let enseignantRowId = null; // rowId de l'enseignant connecté dans ENSEIGNANTS
+  let tableData = [];
+  let enseignantRowId = null;
   let enseignantEmail = null;
   let currentTab = 'tous';
   let busy = false;
+  let enseignantsData = null;
 
-  // ── Initialisation Grist ──────────────────────────────────────────────────
   grist.ready({ requiredAccess: 'full' });
 
   grist.on('message', async (e) => {
@@ -255,53 +268,79 @@
 
   async function loadData() {
     try {
-      // 1. Récupérer l'email de l'utilisateur connecté
-      const user = await grist.docApi.getUserProfile?.() ?? null;
-      // Fallback : on essaie via getOption ou on lit depuis la table
-      enseignantEmail = user?.email ?? null;
-
-      // 2. Lire la table ENSEIGNANTS pour trouver le rowId correspondant
-      const enseignants = await grist.docApi.fetchTable('Enseignants');
-      if (!enseignantEmail) {
-        showError("Impossible de détecter votre email. Vérifiez que vous êtes connecté à Grist.");
-        return;
+      // 1. Tenter de récupérer l'email via plusieurs méthodes
+      let email = null;
+      try {
+        const p = await grist.getUserProfile();
+        email = p?.email ?? null;
+      } catch(e) {}
+      if (!email) {
+        try {
+          const p = await grist.docApi.getUserProfile();
+          email = p?.email ?? null;
+        } catch(e) {}
       }
 
-      const emailCol = enseignants.Email ?? enseignants.email ?? null;
-      if (!emailCol) {
-        showError("Colonne 'Email' introuvable dans la table ENSEIGNANTS.");
-        return;
-      }
+      // 2. Charger la table Enseignants
+      enseignantsData = await grist.docApi.fetchTable('Enseignants');
+      const emailCol = enseignantsData.Email ?? enseignantsData.email ?? null;
 
-      const idx = emailCol.findIndex(e => e && e.toLowerCase() === enseignantEmail.toLowerCase());
-      if (idx === -1) {
-        showError(`Votre email (${enseignantEmail}) n'est pas trouvé dans la table ENSEIGNANTS.`);
-        return;
-      }
-      enseignantRowId = enseignants.id[idx];
-
-      // Afficher le nom si disponible
-      const nomCol = enseignants.Nom ?? enseignants.nom ?? enseignants.Prenom ?? null;
-      const nomAffiche = nomCol ? nomCol[idx] : enseignantEmail;
-      document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
-
-      // 3. Lire la table COURS
+      // 3. Charger les cours
       const cours = await grist.docApi.fetchTable('Cours');
       tableData = buildRows(cours);
-
       hideError();
-      renderList();
+
+      if (email && emailCol) {
+        enseignantEmail = email;
+        const idx = emailCol.findIndex(e => e && e.toLowerCase() === email.toLowerCase());
+        if (idx !== -1) {
+          enseignantRowId = enseignantsData.id[idx];
+          const nomCol = enseignantsData.Nom ?? enseignantsData.nom ?? enseignantsData.Prenom ?? null;
+          const nomAffiche = nomCol ? nomCol[idx] : email;
+          document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
+          renderList();
+          return;
+        }
+      }
+
+      // Fallback : sélecteur manuel
+      showEnseignantSelector(enseignantsData);
+
     } catch (err) {
       showError("Erreur de chargement : " + err.message);
     }
   }
 
+  function showEnseignantSelector(enseignants) {
+    document.getElementById('user-info').textContent = "Veuillez vous identifier";
+    const nomCol = enseignants.Nom ?? enseignants.nom ?? enseignants.Prenom ?? null;
+    const emailCol = enseignants.Email ?? enseignants.email ?? [];
+    const sel = document.getElementById('enseignant-select');
+    enseignants.id.forEach((id, i) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = nomCol ? nomCol[i] : (emailCol[i] ?? `Enseignant #${id}`);
+      sel.appendChild(opt);
+    });
+    document.getElementById('selector-box').style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  function onSelectEnseignant(rowId) {
+    if (!rowId) return;
+    enseignantRowId = parseInt(rowId);
+    const nomCol = enseignantsData.Nom ?? enseignantsData.nom ?? enseignantsData.Prenom ?? null;
+    const idx = enseignantsData.id.indexOf(enseignantRowId);
+    const nomAffiche = nomCol ? nomCol[idx] : `Enseignant #${enseignantRowId}`;
+    document.getElementById('user-info').innerHTML = `Connecté en tant que <span>${nomAffiche}</span>`;
+    document.getElementById('selector-box').style.display = 'none';
+    renderList();
+  }
+
   function buildRows(cours) {
     const ids = cours.id;
     const labels = cours.Cours_label ?? cours.cours_label ?? [];
-    // Candidats est une colonne de type RefList → tableau de tableaux de rowIds
     const candidats = cours.Candidats ?? cours.candidats ?? [];
-
     return ids.map((id, i) => ({
       rowId: id,
       label: labels[i] ?? '(sans titre)',
@@ -309,7 +348,6 @@
     }));
   }
 
-  // ── Rendu ─────────────────────────────────────────────────────────────────
   function setTab(tab, btn) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -318,6 +356,7 @@
   }
 
   function renderList() {
+    if (!enseignantRowId) return;
     let rows = [...tableData];
     if (currentTab === 'mes') rows = rows.filter(r => r.candidats.includes(enseignantRowId));
 
@@ -325,19 +364,17 @@
     if (rows.length === 0) {
       el.innerHTML = `<div class="empty-state">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-        <div>${currentTab === 'mes' ? 'Vous n\'avez posé aucun vœu.' : 'Aucun cours trouvé.'}</div>
+        <div>${currentTab === 'mes' ? "Vous n'avez posé aucun vœu." : 'Aucun cours trouvé.'}</div>
       </div>`;
       return;
     }
-
     el.innerHTML = `<div class="cours-list">${rows.map(cardHTML).join('')}</div>`;
   }
 
   function cardHTML(row) {
     const inscrit = row.candidats.includes(enseignantRowId);
-    const nbCandidats = row.candidats.length;
-    const meta = nbCandidats === 0 ? 'Aucun candidat' : `${nbCandidats} candidat${nbCandidats > 1 ? 's' : ''}`;
-
+    const nb = row.candidats.length;
+    const meta = nb === 0 ? 'Aucun candidat' : `${nb} candidat${nb > 1 ? 's' : ''}`;
     return `<div class="cours-card ${inscrit ? 'inscrit' : ''}">
       <div class="cours-info">
         <div class="cours-label">${esc(row.label)}</div>
@@ -346,26 +383,22 @@
       ${inscrit ? `<span class="badge-inscrit">✓ Inscrit</span>` : ''}
       ${inscrit
         ? `<button class="btn btn-desinscrire" onclick="desinscrire(${row.rowId})">Me désinscrire</button>`
-        : `<button class="btn btn-postuler" onclick="postuler(${row.rowId})">Je postule</button>`
-      }
+        : `<button class="btn btn-postuler" onclick="postuler(${row.rowId})">Je postule</button>`}
     </div>`;
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
   async function postuler(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
     const row = tableData.find(r => r.rowId === coursRowId);
-    const newList = [...row.candidats, enseignantRowId];
-    await updateCandidats(coursRowId, row, newList, `Vœu enregistré pour « ${row.label} »`, 'success');
+    await updateCandidats(coursRowId, row, [...row.candidats, enseignantRowId], `Vœu enregistré pour « ${row.label} »`, 'success');
   }
 
   async function desinscrire(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
     const row = tableData.find(r => r.rowId === coursRowId);
-    const newList = row.candidats.filter(id => id !== enseignantRowId);
-    await updateCandidats(coursRowId, row, newList, `Désinscription de « ${row.label} » effectuée`, 'success');
+    await updateCandidats(coursRowId, row, row.candidats.filter(id => id !== enseignantRowId), `Désinscription de « ${row.label} » effectuée`, 'success');
   }
 
   async function updateCandidats(coursRowId, row, newList, msg, type) {
@@ -383,7 +416,6 @@
     }
   }
 
-  // ── Utilitaires ───────────────────────────────────────────────────────────
   function esc(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
@@ -398,9 +430,8 @@
   }
 
   function showError(msg) {
-    const el = document.getElementById('error-box');
-    el.textContent = msg;
-    el.style.display = 'block';
+    document.getElementById('error-box').textContent = msg;
+    document.getElementById('error-box').style.display = 'block';
     document.getElementById('content').innerHTML = '';
   }
 
@@ -408,7 +439,6 @@
     document.getElementById('error-box').style.display = 'none';
   }
 
-  // Démarrage
   loadData();
 </script>
 </body>
