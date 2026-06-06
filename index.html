@@ -83,7 +83,7 @@
   grist.ready({ requiredAccess: 'full' });
 
   grist.on('message', async (e) => {
-    if (e.tableId) await initialLoad();
+    if (e.tableId && !enseignantRowId) await initialLoad();
   });
 
   async function initialLoad() {
