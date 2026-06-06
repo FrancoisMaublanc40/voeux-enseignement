@@ -92,21 +92,9 @@
     try {
       // Récupérer email
       let email = null;
-      try { console.log('grist keys:', Object.keys(grist).join(', ')); } catch(e) {}
-      try { const p = await grist.getOption('userEmail'); console.log('getOption userEmail:', p); if(p) email = p; } catch(e) { console.log('getOption error:', e.message); }
-      if (!email) {
-        try {
-          await new Promise(resolve => {
-            grist.onOptions(function(opts, interaction) {
-              console.log('onOptions opts:', JSON.stringify(opts));
-              console.log('onOptions interaction:', JSON.stringify(interaction));
-              if (interaction && interaction.user && interaction.user.email) email = interaction.user.email;
-              resolve();
-            });
-            setTimeout(resolve, 500);
-          });
-        } catch(e) { console.log('onOptions error:', e.message); }
-      }
+      try { console.log('docApi keys:', Object.keys(grist.docApi).join(', ')); } catch(e) {}
+      try { const r = await grist.docApi.getDocInfo(); console.log('docInfo:', JSON.stringify(r)); } catch(e) { console.log('docInfo error:', e.message); }
+      try { const r = await grist.docApi.listTables(); console.log('listTables:', JSON.stringify(r)); } catch(e) { console.log('listTables error:', e.message); }
       console.log('final email:', email);
 
       // Charger enseignants
