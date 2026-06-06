@@ -406,6 +406,7 @@
       await grist.docApi.applyUserActions([
         ["UpdateRecord", "Cours", coursRowId, { Candidats: ["L", ...newList] }]
       ]);
+      await new Promise(r => setTimeout(r, 500));
       const cours = await grist.docApi.fetchTable("Cours");
       tableData = buildRows(cours);
       showToast(msg, type);
