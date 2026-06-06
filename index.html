@@ -404,13 +404,14 @@
   async function updateCandidats(coursRowId, row, newList, msg, type) {
     try {
       await grist.docApi.applyUserActions([
-        ['UpdateRecord', 'Cours', coursRowId, { Candidats: ['L', ...newList] }]
+        ["UpdateRecord", "Cours", coursRowId, { Candidats: ["L", ...newList] }]
       ]);
-      row.candidats = newList;
+      const cours = await grist.docApi.fetchTable("Cours");
+      tableData = buildRows(cours);
       showToast(msg, type);
       renderList();
     } catch (err) {
-      showToast('Erreur : ' + err.message, 'error');
+      showToast("Erreur : " + err.message, "error");
     } finally {
       busy = false;
     }
