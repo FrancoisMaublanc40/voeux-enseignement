@@ -220,7 +220,7 @@
   async function doUpdate(coursRowId, newList, msg) {
     try {
       await grist.docApi.applyUserActions([
-        ['UpdateRecord', 'Cours', coursRowId, { Candidats: ['L'].concat(newList) }]
+        ['UpdateRecord', 'Cours', coursRowId, { Candidats: newList.length > 0 ? ['L'].concat(newList) : null }]
       ]);
       // Mettre à jour localement sans recharger
       var row = tableData.find(function(r) { return r.rowId === coursRowId; });
