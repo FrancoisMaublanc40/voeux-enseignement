@@ -202,6 +202,7 @@
       rows = rows.filter(function(r) { return r.discipline === enseignantDiscipline; });
     }
     if (enseignantCampus) {
+      console.log('filtre campus:', enseignantCampus, 'types cours:', rows.map(function(r){ return r.campus; }).slice(0,3));
       rows = rows.filter(function(r) { return r.campus === enseignantCampus; });
     }
     if (currentTab === 'mes') {
