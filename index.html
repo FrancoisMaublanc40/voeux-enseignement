@@ -77,6 +77,7 @@
   let tableData = [];
   let enseignantRowId = null;
   let enseignantDiscipline = null;
+  let enseignantCampus = null;
   let currentTab = 'tous';
   let busy = false;
   let loading = false;
@@ -110,12 +111,13 @@
       // Charger cours
       await reloadCours();
 
-      if (enseignantsData.id.length === 1) {
-        // Identification automatique via la seule ligne visible
+      if (enseignantsData.id.length >= 1) {
         const idx = 0;
         enseignantRowId = enseignantsData.id[idx];
         const disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
+        const campusCol = enseignantsData.Campus || enseignantsData.campus || null;
         enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
+        enseignantCampus = campusCol ? campusCol[idx] : null;
         const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
         const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
         const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
@@ -142,12 +144,14 @@
     const labels = cours.Cours_label || cours.cours_label || [];
     const candidats = cours.Candidats || cours.candidats || [];
     const disciplines = cours.Discipline || cours.discipline || [];
+    const campus = cours.Campus || cours.campus || [];
     tableData = ids.map(function(id, i) {
       var cands = candidats[i];
       return {
         rowId: id,
         label: labels[i] || '(sans titre)',
         discipline: disciplines[i] || null,
+        campus: campus[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
     });
@@ -174,9 +178,11 @@
     var nomCol = enseignantsData.Nom || enseignantsData.nom || null;
     var prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
     var disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
+    var campusCol = enseignantsData.Campus || enseignantsData.campus || null;
     var idx = enseignantsData.id.indexOf(enseignantRowId);
     var nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || ('Enseignant #' + enseignantRowId);
     enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
+    enseignantCampus = campusCol ? campusCol[idx] : null;
     document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
     document.getElementById('selector-box').style.display = 'none';
     render();
@@ -194,6 +200,9 @@
     var rows = tableData.slice();
     if (enseignantDiscipline) {
       rows = rows.filter(function(r) { return r.discipline === enseignantDiscipline; });
+    }
+    if (enseignantCampus) {
+      rows = rows.filter(function(r) { return r.campus === enseignantCampus; });
     }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
