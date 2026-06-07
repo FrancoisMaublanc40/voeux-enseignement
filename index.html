@@ -140,6 +140,7 @@
 
   async function reloadCours() {
     const cours = await grist.docApi.fetchTable('Cours');
+    console.log('colonnes Cours:', Object.keys(cours).join(', '));
     const ids = cours.id;
     const labels = cours.Cours_label || cours.cours_label || [];
     const candidats = cours.Candidats || cours.candidats || [];
@@ -198,13 +199,6 @@
   function render() {
     if (!enseignantRowId) return;
     var rows = tableData.slice();
-    if (enseignantDiscipline) {
-      rows = rows.filter(function(r) { return r.discipline === enseignantDiscipline; });
-    }
-    if (enseignantCampus) {
-      console.log('filtre campus:', enseignantCampus, 'types cours:', rows.map(function(r){ return r.campus; }).slice(0,3));
-      rows = rows.filter(function(r) { return r.campus === enseignantCampus; });
-    }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
     }
