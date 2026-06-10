@@ -100,6 +100,11 @@
   .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
   .error-box { background: var(--danger-light); border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
 
+  .groupe-annee { margin-bottom: 32px; }
+  .groupe-annee h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  .groupe-semestre { margin-bottom: 20px; }
+  .groupe-semestre h3 { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; margin-left: 2px; }
+
   #toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
     background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px;
@@ -216,6 +221,8 @@
         campus: cours.Campus ? cours.Campus[i] : '',
         cycle: cours.Cycle ? cours.Cycle[i] : '',
         specialite: cours.Specialite ? cours.Specialite[i] : '',
+        annee: cours.Annee ? cours.Annee[i] : 0,
+        semestre: cours.Semestre ? cours.Semestre[i] : 0,
         hetd: cours.Volume_hetd ? cours.Volume_hetd[i] : 0,
         affecte: cours.Enseignant_affecte ? cours.Enseignant_affecte[i] : null,
         candidats: Array.isArray(cands) ? cands.filter(function(x){ return typeof x === 'number' && x > 0; }) : (cands && typeof cands === 'number' ? [cands] : [])
@@ -281,50 +288,72 @@
       return;
     }
 
-    el.innerHTML = rows.map(function(row) {
-      var affecteNom = nomEnseignant(row.affecte);
-      var candidatsHtml = '';
-      if (row.candidats.length > 0) {
-        candidatsHtml = '<div class="section-label">Candidats</div><div class="candidats-list">' +
-          row.candidats.map(function(cid) {
-            var nom = nomEnseignant(cid);
-            if (!nom) return '';
-            return '<div class="candidat-chip" onclick="affecter(' + row.rowId + ',' + cid + ')">' + esc(nom) + '</div>';
-          }).join('') +
-        '</div>';
-      } else {
-        candidatsHtml = '<div class="section-label" style="margin-bottom:12px">Aucun candidat</div>';
-      }
+    // Grouper par Année puis Semestre
+    var groupes = {};
+    rows.forEach(function(row) {
+      var annee = row.annee || '?';
+      var semestre = row.semestre || '?';
+      if (!groupes[annee]) groupes[annee] = {};
+      if (!groupes[annee][semestre]) groupes[annee][semestre] = [];
+      groupes[annee][semestre].push(row);
+    });
 
-      var affecteHtml = '';
-      if (affecteNom) {
-        affecteHtml = '<div class="affecte-actuel"><div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Enseignant affecté</div><div class="nom">' + esc(affecteNom) + '</div></div><button class="btn-retirer" onclick="retirer(' + row.rowId + ')">Retirer</button></div>';
-      }
+    var html = '';
+    Object.keys(groupes).sort().forEach(function(annee) {
+      html += '<div class="groupe-annee"><h2>Année ' + esc(annee) + '</h2>';
+      Object.keys(groupes[annee]).sort().forEach(function(semestre) {
+        html += '<div class="groupe-semestre"><h3>Semestre ' + esc(semestre) + '</h3>';
+        groupes[annee][semestre].forEach(function(row) {
+          var affecteNom = nomEnseignant(row.affecte);
+          var candidatsHtml = '';
+          if (row.candidats.length > 0) {
+            candidatsHtml = '<div class="section-label">Candidats</div><div class="candidats-list">' +
+              row.candidats.map(function(cid) {
+                var nom = nomEnseignant(cid);
+                if (!nom) return '';
+                return '<div class="candidat-chip" onclick="affecter(' + row.rowId + ',' + cid + ')">' + esc(nom) + '</div>';
+              }).join('') +
+            '</div>';
+          } else {
+            candidatsHtml = '<div class="section-label" style="margin-bottom:12px">Aucun candidat</div>';
+          }
 
-      return '<div class="cours-card ' + (affecteNom ? 'affecte' : '') + '" id="card-' + row.rowId + '">' +
-        '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
-          '<div><div class="cours-title">' + esc(row.label) + '</div>' +
-          '<div class="cours-meta">' + esc(row.campus) + ' · ' + esc(row.cycle) + ' · ' + esc(row.specialite) + ' · ' + (row.hetd || 0) + ' h</div></div>' +
-          (affecteNom ? '<span class="badge-affecte">✓ ' + esc(affecteNom) + '</span>' : '<span class="badge-non-affecte">À affecter</span>') +
-          '<span class="chevron" id="chevron-' + row.rowId + '">▼</span>' +
-        '</div>' +
-        '<div class="cours-body" id="body-' + row.rowId + '">' +
-          affecteHtml +
-          candidatsHtml +
-          '<div class="section-label">Saisie manuelle</div>' +
-          '<div class="manual-input">' +
-            '<input type="text" id="input-' + row.rowId + '" placeholder="Nom de l\'enseignant..." list="enseignants-list">' +
-            '<button class="btn-affecter" onclick="affecterManuel(' + row.rowId + ')">Affecter</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('') +
-    '<datalist id="enseignants-list">' +
+          var affecteHtml = '';
+          if (affecteNom) {
+            affecteHtml = '<div class="affecte-actuel"><div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Enseignant affecté</div><div class="nom">' + esc(affecteNom) + '</div></div><button class="btn-retirer" onclick="retirer(' + row.rowId + ')">Retirer</button></div>';
+          }
+
+          html += '<div class="cours-card ' + (affecteNom ? 'affecte' : '') + '" id="card-' + row.rowId + '">' +
+            '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
+              '<div><div class="cours-title">' + esc(row.label) + '</div>' +
+              '<div class="cours-meta">' + (row.hetd || 0) + ' h</div></div>' +
+              (affecteNom ? '<span class="badge-affecte">✓ ' + esc(affecteNom) + '</span>' : '<span class="badge-non-affecte">À affecter</span>') +
+              '<span class="chevron" id="chevron-' + row.rowId + '">▼</span>' +
+            '</div>' +
+            '<div class="cours-body" id="body-' + row.rowId + '">' +
+              affecteHtml +
+              candidatsHtml +
+              '<div class="section-label">Saisie manuelle</div>' +
+              '<div class="manual-input">' +
+                '<input type="text" id="input-' + row.rowId + '" placeholder="Nom de l\'enseignant..." list="enseignants-list">' +
+                '<button class="btn-affecter" onclick="affecterManuel(' + row.rowId + ')">Affecter</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    html += '<datalist id="enseignants-list">' +
     enseignantsData.id.map(function(id, i) {
       var nom = (enseignantsData.Nom ? enseignantsData.Nom[i] : '') + (enseignantsData.Prenom ? ' ' + enseignantsData.Prenom[i] : '');
       return '<option value="' + esc(nom) + '">';
     }).join('') +
     '</datalist>';
+
+    el.innerHTML = html;
   }
 
   function toggleCard(rowId) {
