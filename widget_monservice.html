@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon service</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f2ec; --surface: #ffffff; --border: #e2ddd5;
+    --text: #1a1714; --muted: #8c8278; --accent: #2d6a4f;
+    --accent-light: #e8f4ee; --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+  header { margin-bottom: 28px; }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
+  #user-info { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  #user-info span { font-weight: 500; color: var(--accent); }
+
+  .total-box {
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .total-box .label { font-size: 14px; font-weight: 500; opacity: 0.9; }
+  .total-box .value { font-family: 'DM Serif Display', serif; font-size: 28px; }
+
+  .cours-list { display: flex; flex-direction: column; gap: 10px; }
+  .cours-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+  .cours-info { flex: 1; min-width: 0; }
+  .cours-label { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cours-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .hetd-badge {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    background: var(--accent-light); border-radius: 20px;
+    padding: 4px 12px; white-space: nowrap;
+  }
+
+  .selector-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .selector-box label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .selector-box select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+  .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+  .error-box { background: #fdf0ef; border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: #c0392b; font-size: 13px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mon service</h1>
+  <div id="user-info">Chargement…</div>
+</header>
+
+<div id="error-box" class="error-box" style="display:none"></div>
+<div id="selector-box" style="display:none" class="selector-box">
+  <label>Qui êtes-vous ?</label>
+  <select id="enseignant-select" onchange="onSelectEnseignant(this.value)">
+    <option value="">-- Sélectionnez votre nom --</option>
+  </select>
+</div>
+
+<div id="total-box" class="total-box" style="display:none">
+  <div class="label">Total heures affectées (HETD)</div>
+  <div class="value" id="total-value">0 h</div>
+</div>
+
+<div id="content"><div class="loader">Chargement…</div></div>
+
+<script>
+  let tableData = [];
+  let enseignantRowId = null;
+  let enseignantsData = null;
+  let loading = false;
+
+  grist.ready({ requiredAccess: 'full' });
+
+  grist.onOptions(function(opts, interaction) {
+    if (!enseignantRowId && !loading) initialLoad();
+  });
+
+  grist.on('message', async function(e) {
+    if (e.tableId && !enseignantRowId && !loading) await initialLoad();
+  });
+
+  async function initialLoad() {
+    loading = true;
+    try {
+      enseignantsData = await grist.docApi.fetchTable('Enseignants');
+      await reloadCours();
+
+      if (enseignantsData.id.length === 1) {
+        const idx = 0;
+        enseignantRowId = enseignantsData.id[idx];
+        const nomCol = enseignantsData.Nom || enseignantsData.nom || null;
+        const prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
+        const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
+        document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+        hideError();
+        render();
+      } else {
+        afficherSelecteur();
+      }
+    } catch(err) {
+      showError('Erreur : ' + err.message);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function reloadCours() {
+    const cours = await grist.docApi.fetchTable('Cours');
+    const ids = cours.id;
+    const labels = cours.Cours_label || cours.cours_label || [];
+    const hetd = cours.Volume_hetd || cours.volume_hetd || [];
+    const affectes = cours.Enseignant_affecte || cours.enseignant_affecte || [];
+    tableData = ids.map(function(id, i) {
+      return {
+        rowId: id,
+        label: labels[i] || '(sans titre)',
+        hetd: hetd[i] || 0,
+        affecte: affectes[i] || null
+      };
+    });
+  }
+
+  function afficherSelecteur() {
+    document.getElementById('user-info').textContent = 'Veuillez vous identifier';
+    var nomCol = enseignantsData.Nom || enseignantsData.nom || null;
+    var prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
+    var sel = document.getElementById('enseignant-select');
+    enseignantsData.id.forEach(function(id, i) {
+      var opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = (nomCol ? nomCol[i] : '') + (prenomCol ? ' ' + prenomCol[i] : '') || ('Enseignant #' + id);
+      sel.appendChild(opt);
+    });
+    document.getElementById('selector-box').style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  function onSelectEnseignant(val) {
+    if (!val) return;
+    enseignantRowId = parseInt(val);
+    var nomCol = enseignantsData.Nom || enseignantsData.nom || null;
+    var prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
+    var idx = enseignantsData.id.indexOf(enseignantRowId);
+    var nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || ('Enseignant #' + enseignantRowId);
+    document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+    document.getElementById('selector-box').style.display = 'none';
+    render();
+  }
+
+  function render() {
+    if (!enseignantRowId) return;
+    var rows = tableData.filter(function(r) {
+      return r.affecte === enseignantRowId;
+    });
+
+    var total = rows.reduce(function(sum, r) { return sum + (parseFloat(r.hetd) || 0); }, 0);
+    var totalBox = document.getElementById('total-box');
+    totalBox.style.display = 'flex';
+    document.getElementById('total-value').textContent = total.toFixed(1).replace('.0', '') + ' h';
+
+    var el = document.getElementById('content');
+    if (rows.length === 0) {
+      el.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><div>Aucun cours affecté pour le moment.</div></div>';
+      return;
+    }
+
+    el.innerHTML = '<div class="cours-list">' + rows.map(function(row) {
+      return '<div class="cours-card">'
+        + '<div class="cours-info">'
+        + '<div class="cours-label">' + esc(row.label) + '</div>'
+        + '</div>'
+        + '<span class="hetd-badge">' + (parseFloat(row.hetd) || 0) + ' h</span>'
+        + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('error-box');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  initialLoad();
+</script>
+</body>
+</html>
