@@ -45,6 +45,8 @@
     cursor: pointer; user-select: none;
   }
   .cours-header:hover { background: #faf8f4; }
+  .cours-header-left { flex: 1; min-width: 0; }
+  .cours-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
   .cours-title { font-size: 14px; font-weight: 500; flex: 1; }
   .cours-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
@@ -102,8 +104,8 @@
 
   .groupe-annee { margin-bottom: 32px; }
   .groupe-annee h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
-  .groupe-semestre { margin-bottom: 20px; }
-  .groupe-semestre h3 { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; margin-left: 2px; }
+  .groupe-semestre { margin-bottom: 24px; }
+  .groupe-semestre h3 { font-size: 13px; font-weight: 700; color: white; background: var(--muted); border-radius: 6px; padding: 6px 14px; display: inline-block; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
 
   #toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -325,10 +327,12 @@
 
           html += '<div class="cours-card ' + (affecteNom ? 'affecte' : '') + '" id="card-' + row.rowId + '">' +
             '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
-              '<div><div class="cours-title">' + esc(row.label) + '</div>' +
+              '<div class="cours-header-left"><div class="cours-title">' + esc(row.label) + '</div>' +
               '<div class="cours-meta">' + (row.hetd || 0) + ' h</div></div>' +
+              '<div class="cours-header-right">' +
               (affecteNom ? '<span class="badge-affecte">✓ ' + esc(affecteNom) + '</span>' : '<span class="badge-non-affecte">À affecter</span>') +
               '<span class="chevron" id="chevron-' + row.rowId + '">▼</span>' +
+              '</div>' +
             '</div>' +
             '<div class="cours-body" id="body-' + row.rowId + '">' +
               affecteHtml +
