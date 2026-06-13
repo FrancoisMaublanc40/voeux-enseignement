@@ -142,6 +142,8 @@
 
   async function chargerDispos() {
     const data = await grist.docApi.fetchTable('Disponibilites');
+    console.log('colonnes Disponibilites:', Object.keys(data).join(', '));
+    console.log('Nom col:', JSON.stringify((data.Nom || data.nom || []).slice(0,3)));
     dispoData = data;
     dispoSet = new Set();
     const ensCol = data.Nom || data.nom || [];
