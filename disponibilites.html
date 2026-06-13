@@ -144,7 +144,7 @@
     const data = await grist.docApi.fetchTable('Disponibilites');
     dispoData = data;
     dispoSet = new Set();
-    const ensCol = data.Enseignant || data.enseignant || [];
+    const ensCol = data.Nom || data.nom || [];
     const jourCol = data.Jour || data.jour || [];
     const creneauCol = data.Creneau || data.creneau || [];
     ensCol.forEach(function(ens, i) {
@@ -199,7 +199,7 @@
     btn.textContent = 'Enregistrement…';
     try {
       const data = dispoData;
-      const ensCol = data.Enseignant || data.enseignant || [];
+      const ensCol = data.Nom || data.nom || [];
       const jourCol = data.Jour || data.jour || [];
       const creneauCol = data.Creneau || data.creneau || [];
 
@@ -218,7 +218,7 @@
         if (!existantes[key]) {
           var parts = key.split('|');
           actions.push(['AddRecord', 'Disponibilites', null, {
-            Enseignant: enseignantRowId,
+            Nom: enseignantRowId,
             Jour: parts[0],
             Creneau: parts[1]
           }]);
