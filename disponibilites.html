@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes disponibilités</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f2ec; --surface: #ffffff; --border: #e2ddd5;
+    --text: #1a1714; --muted: #8c8278; --accent: #2d6a4f;
+    --accent-light: #e8f4ee; --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+  header { margin-bottom: 24px; }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
+  #user-info { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  #user-info span { font-weight: 500; color: var(--accent); }
+
+  .selector-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .selector-box label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .selector-box select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+
+  .grid-container { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--accent); color: white; padding: 10px 14px; font-size: 13px; font-weight: 600; text-align: center; }
+  th.creneau-header { background: #1a4a35; font-size: 12px; min-width: 100px; }
+  td { border: 1px solid var(--border); padding: 0; text-align: center; }
+  td.creneau-label { padding: 10px 14px; font-size: 12px; color: var(--muted); font-weight: 500; background: #faf8f4; text-align: left; white-space: nowrap; }
+
+  .cell-checkbox { width: 100%; height: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
+  .cell-checkbox:hover { background: var(--accent-light); }
+  .cell-checkbox.checked { background: var(--accent-light); }
+  .cell-checkbox input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+
+  .btn-save {
+    background: var(--accent); color: white; border: none; border-radius: 8px;
+    padding: 12px 28px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; width: 100%; transition: background 0.18s;
+  }
+  .btn-save:hover { background: #235c42; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+  .error-box { background: #fdf0ef; border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: #c0392b; font-size: 13px; margin-bottom: 16px; }
+
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 100; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { background: var(--accent); }
+  #toast.error { background: #c0392b; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mes disponibilités</h1>
+  <div id="user-info">Chargement…</div>
+</header>
+
+<div id="error-box" class="error-box" style="display:none"></div>
+<div id="selector-box" style="display:none" class="selector-box">
+  <label>Qui êtes-vous ?</label>
+  <select id="enseignant-select" onchange="onSelectEnseignant(this.value)">
+    <option value="">-- Sélectionnez votre nom --</option>
+  </select>
+</div>
+
+<div id="content"><div class="loader">Chargement…</div></div>
+<div id="toast"></div>
+
+<script>
+  const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+  const CRENEAUX = {
+    'Lundi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
+    'Mardi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
+    'Mercredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
+    'Jeudi':    ['8h30-10h', '10h15-11h45'],
+    'Vendredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45']
+  };
+  const ALL_CRENEAUX = ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'];
+
+  let enseignantsData = null;
+  let enseignantRowId = null;
+  let dispoData = []; // lignes existantes dans Disponibilites
+  let dispoSet = new Set(); // "Lundi|8h30-10h"
+  let loading = false;
+
+  grist.ready({ requiredAccess: 'full' });
+  grist.onOptions(function() { if (!enseignantRowId && !loading) initialLoad(); });
+  grist.on('message', async function(e) { if (e.tableId && !enseignantRowId && !loading) await initialLoad(); });
+
+  async function initialLoad() {
+    loading = true;
+    try {
+      enseignantsData = await grist.docApi.fetchTable('Enseignants');
+      if (enseignantsData.id.length === 1) {
+        const idx = 0;
+        enseignantRowId = enseignantsData.id[idx];
+        afficherNom(idx);
+        await chargerDispos();
+        renderGrille();
+      } else {
+        afficherSelecteur();
+      }
+    } catch(err) { showError('Erreur : ' + err.message); }
+    finally { loading = false; }
+  }
+
+  function afficherNom(idx) {
+    const nom = (enseignantsData.Nom || [])[idx] || '';
+    const prenom = (enseignantsData.Prenom || [])[idx] || '';
+    document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nom + ' ' + prenom + '</span>';
+  }
+
+  function afficherSelecteur() {
+    document.getElementById('user-info').textContent = 'Veuillez vous identifier';
+    const nomCol = enseignantsData.Nom || [];
+    const prenomCol = enseignantsData.Prenom || [];
+    const sel = document.getElementById('enseignant-select');
+    enseignantsData.id.forEach(function(id, i) {
+      var opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = (nomCol[i] || '') + ' ' + (prenomCol[i] || '');
+      sel.appendChild(opt);
+    });
+    document.getElementById('selector-box').style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  async function onSelectEnseignant(val) {
+    if (!val) return;
+    enseignantRowId = parseInt(val);
+    const idx = enseignantsData.id.indexOf(enseignantRowId);
+    afficherNom(idx);
+    document.getElementById('selector-box').style.display = 'none';
+    await chargerDispos();
+    renderGrille();
+  }
+
+  async function chargerDispos() {
+    const data = await grist.docApi.fetchTable('Disponibilites');
+    dispoData = data;
+    dispoSet = new Set();
+    const ensCol = data.Enseignant || data.enseignant || [];
+    const jourCol = data.Jour || data.jour || [];
+    const creneauCol = data.Creneau || data.creneau || [];
+    ensCol.forEach(function(ens, i) {
+      if (ens === enseignantRowId) {
+        dispoSet.add(jourCol[i] + '|' + creneauCol[i]);
+      }
+    });
+  }
+
+  function renderGrille() {
+    const el = document.getElementById('content');
+    var html = '<div class="grid-container"><table><thead><tr><th class="creneau-header">Créneau</th>';
+    JOURS.forEach(function(j) { html += '<th>' + j + '</th>'; });
+    html += '</tr></thead><tbody>';
+
+    ALL_CRENEAUX.forEach(function(creneau) {
+      html += '<tr><td class="creneau-label">' + creneau + '</td>';
+      JOURS.forEach(function(jour) {
+        if (!CRENEAUX[jour].includes(creneau)) {
+          html += '<td style="background:#f0ece6"></td>';
+        } else {
+          var key = jour + '|' + creneau;
+          var checked = dispoSet.has(key);
+          html += '<td><label class="cell-checkbox ' + (checked ? 'checked' : '') + '" id="label-' + key.replace(/[|:]/g, '-') + '">' +
+            '<input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="toggleDispo(\'' + jour + '\',\'' + creneau + '\',this)">' +
+            '</label></td>';
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    html += '<button class="btn-save" onclick="sauvegarder()">Enregistrer mes disponibilités</button>';
+    el.innerHTML = html;
+  }
+
+  function toggleDispo(jour, creneau, checkbox) {
+    var key = jour + '|' + creneau;
+    var label = document.getElementById('label-' + key.replace(/[|:]/g, '-'));
+    if (checkbox.checked) {
+      dispoSet.add(key);
+      if (label) label.classList.add('checked');
+    } else {
+      dispoSet.delete(key);
+      if (label) label.classList.remove('checked');
+    }
+  }
+
+  async function sauvegarder() {
+    const btn = document.querySelector('.btn-save');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement…';
+    try {
+      const data = dispoData;
+      const ensCol = data.Enseignant || data.enseignant || [];
+      const jourCol = data.Jour || data.jour || [];
+      const creneauCol = data.Creneau || data.creneau || [];
+
+      // Lignes existantes pour cet enseignant
+      var existantes = {};
+      data.id.forEach(function(id, i) {
+        if (ensCol[i] === enseignantRowId) {
+          existantes[jourCol[i] + '|' + creneauCol[i]] = id;
+        }
+      });
+
+      var actions = [];
+
+      // Ajouter les nouvelles dispos
+      dispoSet.forEach(function(key) {
+        if (!existantes[key]) {
+          var parts = key.split('|');
+          actions.push(['AddRecord', 'Disponibilites', null, {
+            Enseignant: enseignantRowId,
+            Jour: parts[0],
+            Creneau: parts[1]
+          }]);
+        }
+      });
+
+      // Supprimer les dispos retirées
+      Object.keys(existantes).forEach(function(key) {
+        if (!dispoSet.has(key)) {
+          actions.push(['RemoveRecord', 'Disponibilites', existantes[key]]);
+        }
+      });
+
+      if (actions.length > 0) {
+        await grist.docApi.applyUserActions(actions);
+        await chargerDispos();
+      }
+
+      showToast('Disponibilités enregistrées !', 'success');
+    } catch(err) {
+      showToast('Erreur : ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer mes disponibilités';
+    }
+  }
+
+  var toastTimer;
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.className = ''; }, 3000);
+  }
+
+  function showError(msg) {
+    document.getElementById('error-box').textContent = msg;
+    document.getElementById('error-box').style.display = 'block';
+    document.getElementById('content').innerHTML = '';
+  }
+
+  initialLoad();
+</script>
+</body>
+</html>
