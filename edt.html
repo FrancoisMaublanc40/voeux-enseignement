@@ -231,11 +231,11 @@
              (!f.option || c.option === f.option) && c.affecte;
     });
 
-    // Index : enseignantRowId → cours
+    // Index : enseignantRowId → [{rowId, label}]
     var enseignantCours = {};
     coursFormation.forEach(function(c) {
       if (!enseignantCours[c.affecte]) enseignantCours[c.affecte] = [];
-      enseignantCours[c.affecte].push(c.label);
+      enseignantCours[c.affecte].push({ rowId: c.rowId, label: c.label });
     });
 
     // Index disponibilités : "ensRowId|jour|creneau" → true
@@ -263,7 +263,7 @@
               var cours = enseignantCours[ensId];
               if (nom) {
                 cours.forEach(function(c) {
-                  items.push({ nom: nom, cours: c, ensId: ensId });
+                  items.push({ nom: nom, label: c.label, coursRowId: c.rowId, ensId: ensId });
                 });
               }
             }
@@ -274,23 +274,21 @@
           } else {
             html += '<td class="cell-dispo">' +
               items.map(function(item) {
-    var key = item.cours + '||' + item.ensId;
+                var key = item.coursRowId + "||" + item.ensId;
                 var placedSlot = placed[key];
-                var isPlaced = placedSlot === (jour + '|' + creneau);
-                // Grisé si ce cours est placé ailleurs OU si l'enseignant est déjà placé sur ce créneau pour un autre cours
-                var ensPlacedElsewhere = Object.keys(placed).some(function(k) {
-                  var parts = k.split('||');
+                var isPlaced = placedSlot === (jour + "|" + creneau);
+                var ensPlacedOnSlot = Object.keys(placed).some(function(k) {
+                  var parts = k.split("||");
                   var kEnsId = parseInt(parts[1]);
-                  var kCours = parts[0];
-                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && kCours !== item.cours;
+                  return kEnsId === item.ensId && placed[k] === (jour + "|" + creneau) && k !== key;
                 });
-                var isGrised = (placedSlot && !isPlaced) || ensPlacedElsewhere;
+                var isGrised = (placedSlot && !isPlaced) || ensPlacedOnSlot;
                 return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
-                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer">' +
-                  '<input type="checkbox" ' + (isPlaced ? 'checked' : '') + (isGrised ? 'disabled' : '') +
-                  ' onchange="togglePlace(\'' + escAttr(item.cours) + '\',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent)">' +
+                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised ? 'default' : 'pointer') + '">' +
+                  '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised ? 'disabled ' : '') +
+                  ' onchange="togglePlace(' + item.coursRowId + ',"' + item.ensId + ',"' + jour + '","' + creneau + '",this)" style="margin-top:2px;accent-color:var(--accent)">' +
                   '<div><div class="enseignant">' + esc(item.nom) + '</div>' +
-                  '<div class="cours-nom">' + esc(item.cours) + '</div></div>' +
+                  '<div class="cours-nom">' + esc(item.label) + '</div></div>' +
                   '</label></div>';
               }).join('') +
             '</td>';
@@ -304,8 +302,8 @@
     document.getElementById('content').innerHTML = html;
   }
 
-  function togglePlace(coursLabel, ensId, jour, creneau, checkbox) {
-    var key = coursLabel + '||' + ensId;
+  function togglePlace(coursRowId, ensId, jour, creneau, checkbox) {
+    var key = coursRowId + '||' + ensId;
     if (checkbox.checked) {
       placed[key] = jour + '|' + creneau;
     } else {
