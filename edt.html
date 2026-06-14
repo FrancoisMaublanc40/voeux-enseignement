@@ -59,6 +59,9 @@
   .cours-item .enseignant { font-weight: 600; color: var(--accent); }
   .cours-item .cours-nom { color: var(--text); margin-top: 2px; font-size: 11px; line-height: 1.3; }
 
+  .cours-item.grised { background: #e8e4de; border-color: #d0cbc4; opacity: 0.5; }
+  .cours-item.placed { background: #c8e8d8; border-color: var(--accent); }
+
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
   .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
   .error-box { background: #fdf0ef; border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: #c0392b; font-size: 13px; margin-bottom: 16px; }
@@ -212,6 +215,8 @@
     return nom + (prenom ? ' ' + prenom : '');
   }
 
+  let placed = {}; // "coursLabel|ensRowId" → "jour|creneau"
+
   function renderGrille() {
     var f = getFiltre();
     if (!f.campus || !f.cycle || !f.annee || !f.semestre) {
@@ -258,7 +263,7 @@
               var cours = enseignantCours[ensId];
               if (nom) {
                 cours.forEach(function(c) {
-                  items.push({ nom: nom, cours: c });
+                  items.push({ nom: nom, cours: c, ensId: ensId });
                 });
               }
             }
@@ -269,10 +274,17 @@
           } else {
             html += '<td class="cell-dispo">' +
               items.map(function(item) {
-                return '<div class="cours-item">' +
-                  '<div class="enseignant">' + esc(item.nom) + '</div>' +
-                  '<div class="cours-nom">' + esc(item.cours) + '</div>' +
-                  '</div>';
+                var key = item.cours + '|' + item.ensId;
+                var placedSlot = placed[key];
+                var isPlaced = placedSlot === (jour + '|' + creneau);
+                var isGrised = placedSlot && !isPlaced;
+                return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
+                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer">' +
+                  '<input type="checkbox" ' + (isPlaced ? 'checked' : '') + (isGrised ? 'disabled' : '') +
+                  ' onchange="togglePlace(\'' + escAttr(item.cours) + '\',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent)">' +
+                  '<div><div class="enseignant">' + esc(item.nom) + '</div>' +
+                  '<div class="cours-nom">' + esc(item.cours) + '</div></div>' +
+                  '</label></div>';
               }).join('') +
             '</td>';
           }
@@ -283,6 +295,20 @@
 
     html += '</tbody></table></div>';
     document.getElementById('content').innerHTML = html;
+  }
+
+  function togglePlace(coursLabel, ensId, jour, creneau, checkbox) {
+    var key = coursLabel + '|' + ensId;
+    if (checkbox.checked) {
+      placed[key] = jour + '|' + creneau;
+    } else {
+      delete placed[key];
+    }
+    renderGrille();
+  }
+
+  function escAttr(str) {
+    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
 
   function esc(str) {
