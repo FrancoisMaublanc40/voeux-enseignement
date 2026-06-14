@@ -277,7 +277,13 @@
                 var key = item.cours + '|' + item.ensId;
                 var placedSlot = placed[key];
                 var isPlaced = placedSlot === (jour + '|' + creneau);
-                var isGrised = placedSlot && !isPlaced;
+                // Grisé si ce cours est placé ailleurs OU si l'enseignant est déjà placé sur ce créneau pour un autre cours
+                var ensPlacedElsewhere = Object.keys(placed).some(function(k) {
+                  var parts = k.split('|');
+                  var kEnsId = parseInt(parts[1]);
+                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && k !== key;
+                });
+                var isGrised = (placedSlot && !isPlaced) || ensPlacedElsewhere;
                 return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
                   '<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer">' +
                   '<input type="checkbox" ' + (isPlaced ? 'checked' : '') + (isGrised ? 'disabled' : '') +
