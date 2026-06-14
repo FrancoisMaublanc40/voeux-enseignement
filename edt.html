@@ -286,7 +286,7 @@
                 return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
                   '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised ? 'default' : 'pointer') + '">' +
                   '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised ? 'disabled ' : '') +
-                  ' onchange="togglePlace(' + item.coursRowId + ',"' + item.ensId + ',"' + jour + '","' + creneau + '",this)" style="margin-top:2px;accent-color:var(--accent)">' +
+                  ' onchange="togglePlace(' + item.coursRowId + ',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent)">' +
                   '<div><div class="enseignant">' + esc(item.nom) + '</div>' +
                   '<div class="cours-nom">' + esc(item.label) + '</div></div>' +
                   '</label></div>';
