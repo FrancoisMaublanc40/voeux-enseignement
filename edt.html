@@ -274,14 +274,15 @@
           } else {
             html += '<td class="cell-dispo">' +
               items.map(function(item) {
-                var key = item.cours + '|' + item.ensId;
+    var key = item.cours + '||' + item.ensId;
                 var placedSlot = placed[key];
                 var isPlaced = placedSlot === (jour + '|' + creneau);
                 // Grisé si ce cours est placé ailleurs OU si l'enseignant est déjà placé sur ce créneau pour un autre cours
                 var ensPlacedElsewhere = Object.keys(placed).some(function(k) {
-                  var parts = k.split('|');
+                  var parts = k.split('||');
                   var kEnsId = parseInt(parts[1]);
-                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && k !== key;
+                  var kCours = parts[0];
+                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && kCours !== item.cours;
                 });
                 var isGrised = (placedSlot && !isPlaced) || ensPlacedElsewhere;
                 return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
@@ -304,7 +305,7 @@
   }
 
   function togglePlace(coursLabel, ensId, jour, creneau, checkbox) {
-    var key = coursLabel + '|' + ensId;
+    var key = coursLabel + '||' + ensId;
     if (checkbox.checked) {
       placed[key] = jour + '|' + creneau;
     } else {
