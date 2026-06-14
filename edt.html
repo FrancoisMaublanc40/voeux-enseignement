@@ -73,10 +73,10 @@
   .cours-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
   .corbeille {
     background: none; border: none; cursor: pointer; font-size: 13px; padding: 0 2px;
-    opacity: 0.4; transition: opacity 0.15s; flex-shrink: 0; line-height: 1;
+    opacity: 0.7; transition: opacity 0.15s; flex-shrink: 0; line-height: 1; filter: grayscale(0.3);
   }
-  .corbeille:hover { opacity: 1; }
-  .corbeille.active { opacity: 1; color: #c0392b; }
+  .corbeille:hover { opacity: 1; filter: none; }
+  .corbeille.active { opacity: 1; color: #c0392b; filter: none; }
 
   .cours-item.placed-cm { background: #e74c3c !important; border-color: #c0392b !important; }
   .cours-item.placed-cm .enseignant, .cours-item.placed-cm .cours-nom { color: white !important; }
@@ -338,6 +338,42 @@
     });
 
     html += '</tbody></table></div>';
+
+    // Cours non couverts
+    var nonCouverts = coursFormation.filter(function(c) {
+      if (!c.affecte) return true;
+      // L'enseignant n'a aucune dispo
+      var aDispo = dispoData.some(function(d) { return d.enseignant === c.affecte; });
+      return !aDispo;
+    });
+
+    // Cours sans enseignant affecté dans la formation
+    var sansEnseignant = coursData.filter(function(c) {
+      return c.campus === f.campus && c.cycle === f.cycle &&
+             String(c.annee) === String(f.annee) && String(c.semestre) === String(f.semestre) &&
+             (!f.option || c.option === f.option) && !c.affecte;
+    });
+
+    var tousNonCouverts = sansEnseignant.concat(nonCouverts.filter(function(c) { return c.affecte; }));
+
+    if (tousNonCouverts.length > 0) {
+      html += '<div style="margin-top:24px"><h2 style="font-family:\'DM Serif Display\',serif;font-size:18px;font-weight:400;color:#c0392b;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f0b8b8">⚠ Cours non couverts (' + tousNonCouverts.length + ')</h2>';
+      html += '<div style="display:flex;flex-direction:column;gap:8px">';
+      tousNonCouverts.forEach(function(c) {
+        var typeClass = '';
+        var labelUp = (c.label || '').toUpperCase();
+        if (labelUp.indexOf(' CM') !== -1) typeClass = 'cm';
+        else if (labelUp.indexOf(' TD') !== -1) typeClass = 'td';
+        else if (labelUp.indexOf(' TP') !== -1) typeClass = 'tp';
+        var raison = !c.affecte ? 'Aucun enseignant affecté' : 'Enseignant affecté sans disponibilités renseignées (' + (nomEnseignant(c.affecte) || '?') + ')';
+        html += '<div class="cours-item ' + typeClass + '" style="opacity:0.8">' +
+          '<div class="enseignant">' + esc(c.label) + '</div>' +
+          '<div class="cours-nom" style="color:#c0392b;margin-top:2px">' + esc(raison) + '</div>' +
+          '</div>';
+      });
+      html += '</div></div>';
+    }
+
     document.getElementById('content').innerHTML = html;
   }
 
