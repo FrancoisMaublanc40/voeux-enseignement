@@ -78,8 +78,13 @@
   .corbeille:hover { opacity: 1; }
   .corbeille.active { opacity: 1; color: #c0392b; }
 
-  .cours-item.grised { background: #e8e4de; border-color: #d0cbc4; opacity: 0.5; }
-  .cours-item.placed { background: #c8e8d8; border-color: var(--accent); }
+  .cours-item.placed-cm { background: #e74c3c !important; border-color: #c0392b !important; }
+  .cours-item.placed-cm .enseignant, .cours-item.placed-cm .cours-nom { color: white !important; }
+  .cours-item.placed-td { background: #2d4a8a !important; border-color: #1a2f5a !important; }
+  .cours-item.placed-td .enseignant, .cours-item.placed-td .cours-nom { color: white !important; }
+  .cours-item.placed-tp { background: #8a5a2d !important; border-color: #5a3a1a !important; }
+  .cours-item.placed-tp .enseignant, .cours-item.placed-tp .cours-nom { color: white !important; }
+  .cours-item.placed-default { background: #c8e8d8 !important; border-color: var(--accent) !important; }
 
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
   .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
@@ -313,7 +318,7 @@
                 else if (labelUp.indexOf(' TD') !== -1) typeClass = 'td';
                 else if (labelUp.indexOf(' TP') !== -1) typeClass = 'tp';
 
-                var classes = 'cours-item ' + typeClass + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + (isExclu ? ' exclu' : '');
+                var classes = 'cours-item ' + typeClass + (isGrised ? ' grised' : '') + (isPlaced ? ' placed-' + (typeClass || 'default') : '') + (isExclu ? ' exclu' : '');
                 return '<div class="' + classes + '">' +
                   '<div class="cours-item-header">' +
                   '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised || isExclu ? 'default' : 'pointer') + ';flex:1">' +
