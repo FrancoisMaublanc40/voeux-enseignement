@@ -59,6 +59,25 @@
   .cours-item .enseignant { font-weight: 600; color: var(--accent); }
   .cours-item .cours-nom { color: var(--text); margin-top: 2px; font-size: 11px; line-height: 1.3; }
 
+  .cours-item.cm { background: #fde8e8; border-color: #f0b8b8; }
+  .cours-item.cm .enseignant { color: #c0392b; }
+  .cours-item.td { background: #e8f0fd; border-color: #b8c8f0; }
+  .cours-item.td .enseignant { color: #2d4a8a; }
+  .cours-item.tp { background: #fdf5e8; border-color: #f0dbb8; }
+  .cours-item.tp .enseignant { color: #8a5a2d; }
+  .cours-item.grised { background: #e8e4de !important; border-color: #d0cbc4 !important; opacity: 0.5; }
+  .cours-item.placed { background: #c8e8d8 !important; border-color: var(--accent) !important; }
+  .cours-item.exclu { background: #f0ece6 !important; border-color: #d0cbc4 !important; opacity: 0.4; pointer-events: none; }
+  .cours-item.exclu .corbeille { pointer-events: all; opacity: 1; }
+
+  .cours-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+  .corbeille {
+    background: none; border: none; cursor: pointer; font-size: 13px; padding: 0 2px;
+    opacity: 0.4; transition: opacity 0.15s; flex-shrink: 0; line-height: 1;
+  }
+  .corbeille:hover { opacity: 1; }
+  .corbeille.active { opacity: 1; color: #c0392b; }
+
   .cours-item.grised { background: #e8e4de; border-color: #d0cbc4; opacity: 0.5; }
   .cours-item.placed { background: #c8e8d8; border-color: var(--accent); }
 
@@ -215,7 +234,8 @@
     return nom + (prenom ? ' ' + prenom : '');
   }
 
-  let placed = {}; // "coursLabel|ensRowId" → "jour|creneau"
+  let placed = {}; // "coursRowId||ensRowId" → "jour|creneau"
+  let excluded = new Set(); // "coursRowId||ensRowId||jour||creneau"
 
   function renderGrille() {
     var f = getFiltre();
@@ -274,22 +294,36 @@
           } else {
             html += '<td class="cell-dispo">' +
               items.map(function(item) {
-                var key = item.coursRowId + "||" + item.ensId;
+                var key = item.coursRowId + '||' + item.ensId;
+                var exclKey = item.coursRowId + '||' + item.ensId + '||' + jour + '||' + creneau;
                 var placedSlot = placed[key];
-                var isPlaced = placedSlot === (jour + "|" + creneau);
+                var isPlaced = placedSlot === (jour + '|' + creneau);
+                var isExclu = excluded.has(exclKey);
                 var ensPlacedOnSlot = Object.keys(placed).some(function(k) {
-                  var parts = k.split("||");
+                  var parts = k.split('||');
                   var kEnsId = parseInt(parts[1]);
-                  return kEnsId === item.ensId && placed[k] === (jour + "|" + creneau) && k !== key;
+                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && k !== key;
                 });
                 var isGrised = (placedSlot && !isPlaced) || ensPlacedOnSlot;
-                return '<div class="cours-item' + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + '">' +
-                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised ? 'default' : 'pointer') + '">' +
-                  '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised ? 'disabled ' : '') +
+
+                // Déterminer le type CM/TD/TP depuis le label
+                var typeClass = '';
+                var labelUp = (item.label || '').toUpperCase();
+                if (labelUp.indexOf(' CM') !== -1) typeClass = 'cm';
+                else if (labelUp.indexOf(' TD') !== -1) typeClass = 'td';
+                else if (labelUp.indexOf(' TP') !== -1) typeClass = 'tp';
+
+                var classes = 'cours-item ' + typeClass + (isGrised ? ' grised' : '') + (isPlaced ? ' placed' : '') + (isExclu ? ' exclu' : '');
+                return '<div class="' + classes + '">' +
+                  '<div class="cours-item-header">' +
+                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised || isExclu ? 'default' : 'pointer') + ';flex:1">' +
+                  '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised || isExclu ? 'disabled ' : '') +
                   ' onchange="togglePlace(' + item.coursRowId + ',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent)">' +
                   '<div><div class="enseignant">' + esc(item.nom) + '</div>' +
                   '<div class="cours-nom">' + esc(item.label) + '</div></div>' +
-                  '</label></div>';
+                  '</label>' +
+                  '<button class="corbeille' + (isExclu ? ' active' : '') + '" onclick="toggleExclu(\'' + exclKey + '\')" title="' + (isExclu ? 'Réactiver' : 'Exclure') + '">🗑</button>' +
+                  '</div></div>';
               }).join('') +
             '</td>';
           }
@@ -300,6 +334,20 @@
 
     html += '</tbody></table></div>';
     document.getElementById('content').innerHTML = html;
+  }
+
+  function toggleExclu(exclKey) {
+    if (excluded.has(exclKey)) {
+      excluded.delete(exclKey);
+    } else {
+      excluded.add(exclKey);
+      // Si ce cours était placé sur ce créneau, le déplacer
+      var parts = exclKey.split('||');
+      var key = parts[0] + '||' + parts[1];
+      var slot = parts[2] + '|' + parts[3];
+      if (placed[key] === slot) delete placed[key];
+    }
+    renderGrille();
   }
 
   function togglePlace(coursRowId, ensId, jour, creneau, checkbox) {
