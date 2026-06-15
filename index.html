@@ -179,12 +179,12 @@
       var cands = candidats[i];
       return {
         rowId: id,
-        label: labels[i] || '(sans titre)',
+        label: labels[i] || '',
         discipline: disciplines[i] || null,
         campus: campus[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
-    });
+    }).filter(function(r) { return r.label !== ''; });
   }
 
   function afficherSelecteur() {
