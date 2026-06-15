@@ -104,9 +104,33 @@
   async function initialLoad() {
     loading = true;
     try {
+      let responsablesData = null;
+      try { responsablesData = await grist.docApi.fetchTable('Responsables'); } catch(e) {}
+
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
       await reloadCours();
 
+      // Responsable identifié via Responsables
+      if (responsablesData && responsablesData.id.length === 1) {
+        const ensCol = responsablesData.Enseignant || [];
+        const ensRowId = ensCol[0];
+        if (ensRowId) {
+          const idx = enseignantsData.id.indexOf(ensRowId);
+          if (idx !== -1) {
+            enseignantRowId = ensRowId;
+            const nomCol = enseignantsData.Nom || null;
+            const prenomCol = enseignantsData.Prenom || null;
+            const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Responsable';
+            document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+            hideError();
+            render();
+            loading = false;
+            return;
+          }
+        }
+      }
+
+      // Enseignant normal
       if (enseignantsData.id.length === 1) {
         const idx = 0;
         enseignantRowId = enseignantsData.id[idx];
