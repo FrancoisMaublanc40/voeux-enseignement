@@ -184,7 +184,7 @@
         campus: campus[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
-    }).filter(function(r) { return r.label !== ''; });
+    }).filter(function(r) { return r.label !== '' && r.discipline !== null && r.campus !== null; });
   }
 
   function afficherSelecteur() {
