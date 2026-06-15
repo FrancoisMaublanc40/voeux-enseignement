@@ -229,6 +229,9 @@
   function render() {
     if (!enseignantRowId) return;
     var rows = tableData.slice();
+    if (enseignantDiscipline) {
+      rows = rows.filter(function(r) { return r.discipline === enseignantDiscipline; });
+    }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
     }
