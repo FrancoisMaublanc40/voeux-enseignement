@@ -95,7 +95,30 @@
   async function initialLoad() {
     loading = true;
     try {
+      // Vérifier si responsable d'abord
+      let responsablesData = null;
+      try { responsablesData = await grist.docApi.fetchTable('Responsables'); } catch(e) {}
+
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
+
+      // Si une ligne dans Responsables → responsable identifié
+      if (responsablesData && responsablesData.id.length === 1) {
+        const ensCol = responsablesData.Enseignant || [];
+        const ensRowId = ensCol[0];
+        if (ensRowId) {
+          const idx = enseignantsData.id.indexOf(ensRowId);
+          if (idx !== -1) {
+            enseignantRowId = ensRowId;
+            afficherNom(idx);
+            await chargerDispos();
+            renderGrille();
+            loading = false;
+            return;
+          }
+        }
+      }
+
+      // Enseignant normal : une seule ligne visible
       if (enseignantsData.id.length === 1) {
         const idx = 0;
         enseignantRowId = enseignantsData.id[idx];
