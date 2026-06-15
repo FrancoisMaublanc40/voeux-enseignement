@@ -175,6 +175,7 @@
     const candidats = cours.Candidats || cours.candidats || [];
     const disciplines = cours.Discipline || cours.discipline || [];
     const campus = cours.Campus || cours.campus || [];
+    console.log('premiers cours:', ids.slice(0,3).map(function(id,i){ return {label: labels[i], discipline: disciplines[i], campus: campus[i]}; }));
     tableData = ids.map(function(id, i) {
       var cands = candidats[i];
       return {
