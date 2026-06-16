@@ -260,7 +260,9 @@
   }
 
   function peuplerFiltres(rows) {
+    console.log('peuplerFiltres appelé avec', rows.length, 'cours');
     var box = document.getElementById('filtres-box');
+    console.log('filtres-box trouvé:', box);
     box.style.display = 'grid';
     function peuplerSelect(id, vals) {
       var sel = document.getElementById(id);
