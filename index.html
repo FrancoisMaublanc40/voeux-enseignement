@@ -78,6 +78,10 @@
 
 <div id="filtres-box" class="filtres-box" style="display:none">
   <div class="filtre-group">
+    <label>Campus</label>
+    <select id="f-campus" onchange="render()"><option value="">Tous</option></select>
+  </div>
+  <div class="filtre-group">
     <label>Cycle</label>
     <select id="f-cycle" onchange="render()"><option value="">Tous</option></select>
   </div>
@@ -259,26 +263,45 @@
     render();
   }
 
-  function peuplerFiltres(rows) {
-    console.log('peuplerFiltres appelé avec', rows.length, 'cours');
+  function peuplerFiltres(rowsBase) {
     var box = document.getElementById('filtres-box');
-    console.log('filtres-box trouvé:', box);
     box.style.display = 'grid';
-    function peuplerSelect(id, vals) {
+
+    function peuplerSelect(id, vals, label) {
       var sel = document.getElementById(id);
       var current = sel.value;
-      sel.innerHTML = '<option value="">Tous</option>';
-      [...new Set(vals.filter(Boolean))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
+      sel.innerHTML = '<option value="">' + label + '</option>';
+      [...new Set(vals.filter(function(v){ return v !== null && v !== undefined && v !== ''; }))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
         var opt = document.createElement('option');
         opt.value = v; opt.textContent = v;
         if (String(v) === current) opt.selected = true;
         sel.appendChild(opt);
       });
     }
-    peuplerSelect('f-cycle', rows.map(function(r){return r.cycle;}));
-    peuplerSelect('f-annee', rows.map(function(r){return r.annee;}));
-    peuplerSelect('f-semestre', rows.map(function(r){return r.semestre;}));
-    peuplerSelect('f-option', rows.map(function(r){return r.option;}));
+
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+
+    // Campus : sur tous les cours de la discipline
+    peuplerSelect('f-campus', rowsBase.map(function(r){return r.campus;}), 'Tous les campus');
+
+    // Cycle : filtré par campus
+    var r1 = fCampus ? rowsBase.filter(function(r){return r.campus === fCampus;}) : rowsBase;
+    peuplerSelect('f-cycle', r1.map(function(r){return r.cycle;}), 'Tous les cycles');
+
+    // Année : filtré par campus + cycle
+    var r2 = fCycle ? r1.filter(function(r){return r.cycle === fCycle;}) : r1;
+    peuplerSelect('f-annee', r2.map(function(r){return String(r.annee);}), 'Toutes les années');
+
+    // Semestre : filtré par campus + cycle + année
+    var r3 = fAnnee ? r2.filter(function(r){return String(r.annee) === fAnnee;}) : r2;
+    peuplerSelect('f-semestre', r3.map(function(r){return String(r.semestre);}), 'Tous les semestres');
+
+    // Option : filtré par campus + cycle + année + semestre
+    var r4 = fSemestre ? r3.filter(function(r){return String(r.semestre) === fSemestre;}) : r3;
+    peuplerSelect('f-option', r4.map(function(r){return r.option;}), 'Toutes les options');
   }
 
   function render() {
@@ -293,15 +316,17 @@
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
     }
 
-    // Peupler les filtres avec les valeurs disponibles
+    // Peupler les filtres en cascade
     peuplerFiltres(rows);
 
     // Appliquer les filtres sélectionnés
+    var fCampus = document.getElementById('f-campus').value;
     var fCycle = document.getElementById('f-cycle').value;
     var fAnnee = document.getElementById('f-annee').value;
     var fSemestre = document.getElementById('f-semestre').value;
     var fOption = document.getElementById('f-option').value;
-    if (fCycle) rows = rows.filter(function(r) { return String(r.cycle) === fCycle; });
+    if (fCampus) rows = rows.filter(function(r) { return r.campus === fCampus; });
+    if (fCycle) rows = rows.filter(function(r) { return r.cycle === fCycle; });
     if (fAnnee) rows = rows.filter(function(r) { return String(r.annee) === fAnnee; });
     if (fSemestre) rows = rows.filter(function(r) { return String(r.semestre) === fSemestre; });
     if (fOption) rows = rows.filter(function(r) { return r.option === fOption; });
