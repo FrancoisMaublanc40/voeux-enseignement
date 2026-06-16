@@ -169,19 +169,19 @@
 
   async function reloadCours() {
     const cours = await grist.docApi.fetchTable('Cours');
-    console.log('colonnes Cours:', Object.keys(cours).join(', '));
     const ids = cours.id;
     const labels = cours.Cours_label || cours.cours_label || [];
     const candidats = cours.Candidats || cours.candidats || [];
     const disciplines = cours.Discipline || cours.discipline || [];
+    const disciplines2 = cours.Discipline_2 || cours.discipline_2 || [];
     const campus = cours.Campus || cours.campus || [];
-    console.log('premiers cours:', ids.slice(0,3).map(function(id,i){ return {label: labels[i], discipline: disciplines[i], campus: campus[i]}; }));
     tableData = ids.map(function(id, i) {
       var cands = candidats[i];
       return {
         rowId: id,
         label: labels[i] || '',
         discipline: disciplines[i] || null,
+        discipline2: disciplines2[i] || null,
         campus: campus[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
@@ -230,7 +230,9 @@
     if (!enseignantRowId) return;
     var rows = tableData.slice();
     if (enseignantDiscipline) {
-      rows = rows.filter(function(r) { return r.discipline === enseignantDiscipline; });
+      rows = rows.filter(function(r) { 
+        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline; 
+      });
     }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
