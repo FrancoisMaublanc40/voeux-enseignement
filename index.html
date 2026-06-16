@@ -46,8 +46,14 @@
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.success { background: var(--accent); }
   #toast.error { background: var(--danger); }
-  .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
-  .error-box { background: var(--danger-light); border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
+  .filtres-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+  }
+  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+  .filtre-group select:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -68,6 +74,25 @@
 <div class="tabs">
   <button class="tab active" onclick="setTab('tous', this)">Tous les cours</button>
   <button class="tab" onclick="setTab('mes', this)">Mes vœux</button>
+</div>
+
+<div id="filtres-box" class="filtres-box" style="display:none">
+  <div class="filtre-group">
+    <label>Cycle</label>
+    <select id="f-cycle" onchange="render()"><option value="">Tous</option></select>
+  </div>
+  <div class="filtre-group">
+    <label>Année</label>
+    <select id="f-annee" onchange="render()"><option value="">Toutes</option></select>
+  </div>
+  <div class="filtre-group">
+    <label>Semestre</label>
+    <select id="f-semestre" onchange="render()"><option value="">Tous</option></select>
+  </div>
+  <div class="filtre-group">
+    <label>Option</label>
+    <select id="f-option" onchange="render()"><option value="">Toutes</option></select>
+  </div>
 </div>
 
 <div id="content"><div class="loader">Chargement des cours…</div></div>
@@ -175,6 +200,10 @@
     const disciplines = cours.Discipline || cours.discipline || [];
     const disciplines2 = cours.Discipline_2 || cours.discipline_2 || [];
     const campus = cours.Campus || cours.campus || [];
+    const cycles = cours.Cycle || cours.cycle || [];
+    const annees = cours.Annee || cours.annee || [];
+    const semestres = cours.Semestre || cours.semestre || [];
+    const options = cours.Option || cours.option || [];
     tableData = ids.map(function(id, i) {
       var cands = candidats[i];
       return {
@@ -183,6 +212,10 @@
         discipline: disciplines[i] || null,
         discipline2: disciplines2[i] || null,
         campus: campus[i] || null,
+        cycle: cycles[i] || null,
+        annee: annees[i] || null,
+        semestre: semestres[i] || null,
+        option: options[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
     }).filter(function(r) { return r.label.length > 3; });
@@ -226,17 +259,50 @@
     render();
   }
 
+  function peuplerFiltres(rows) {
+    var box = document.getElementById('filtres-box');
+    box.style.display = 'grid';
+    function peuplerSelect(id, vals) {
+      var sel = document.getElementById(id);
+      var current = sel.value;
+      sel.innerHTML = '<option value="">Tous</option>';
+      [...new Set(vals.filter(Boolean))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
+        var opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        if (String(v) === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+    peuplerSelect('f-cycle', rows.map(function(r){return r.cycle;}));
+    peuplerSelect('f-annee', rows.map(function(r){return r.annee;}));
+    peuplerSelect('f-semestre', rows.map(function(r){return r.semestre;}));
+    peuplerSelect('f-option', rows.map(function(r){return r.option;}));
+  }
+
   function render() {
     if (!enseignantRowId) return;
     var rows = tableData.slice();
     if (enseignantDiscipline) {
-      rows = rows.filter(function(r) { 
-        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline; 
+      rows = rows.filter(function(r) {
+        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
       });
     }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
     }
+
+    // Peupler les filtres avec les valeurs disponibles
+    peuplerFiltres(rows);
+
+    // Appliquer les filtres sélectionnés
+    var fCycle = document.getElementById('f-cycle').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+    var fOption = document.getElementById('f-option').value;
+    if (fCycle) rows = rows.filter(function(r) { return String(r.cycle) === fCycle; });
+    if (fAnnee) rows = rows.filter(function(r) { return String(r.annee) === fAnnee; });
+    if (fSemestre) rows = rows.filter(function(r) { return String(r.semestre) === fSemestre; });
+    if (fOption) rows = rows.filter(function(r) { return r.option === fOption; });
     var el = document.getElementById('content');
     if (rows.length === 0) {
       el.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><div>' + (currentTab === 'mes' ? "Vous n'avez posé aucun vœu." : 'Aucun cours trouvé.') + '</div></div>';
