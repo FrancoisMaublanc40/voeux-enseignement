@@ -73,14 +73,29 @@
 
 <script>
   const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-  const CRENEAUX = {
+
+  const CRENEAUX_CERGY = {
     'Lundi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Mardi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Mercredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Jeudi':    ['8h30-10h', '10h15-11h45'],
     'Vendredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45']
   };
-  const ALL_CRENEAUX = ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'];
+  const ALL_CRENEAUX_CERGY = ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'];
+
+  const CRENEAUX_PAU = {
+    'Lundi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Mardi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Mercredi': ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Jeudi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Vendredi': ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15']
+  };
+  const ALL_CRENEAUX_PAU = ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'];
+
+  let campusEnseignant = null;
+
+  function getCRENEAUX() { return campusEnseignant === 'Pau' ? CRENEAUX_PAU : CRENEAUX_CERGY; }
+  function getAllCRENEAUX() { return campusEnseignant === 'Pau' ? ALL_CRENEAUX_PAU : ALL_CRENEAUX_CERGY; }
 
   let enseignantsData = null;
   let enseignantRowId = null;
@@ -109,6 +124,7 @@
           const idx = enseignantsData.id.indexOf(ensRowId);
           if (idx !== -1) {
             enseignantRowId = ensRowId;
+            campusEnseignant = (enseignantsData.Campus || [])[idx] || 'Cergy';
             afficherNom(idx);
             await chargerDispos();
             renderGrille();
@@ -122,6 +138,7 @@
       if (enseignantsData.id.length === 1) {
         const idx = 0;
         enseignantRowId = enseignantsData.id[idx];
+        campusEnseignant = (enseignantsData.Campus || [])[idx] || 'Cergy';
         afficherNom(idx);
         await chargerDispos();
         renderGrille();
@@ -157,6 +174,7 @@
     if (!val) return;
     enseignantRowId = parseInt(val);
     const idx = enseignantsData.id.indexOf(enseignantRowId);
+    campusEnseignant = (enseignantsData.Campus || [])[idx] || 'Cergy';
     afficherNom(idx);
     document.getElementById('selector-box').style.display = 'none';
     await chargerDispos();
@@ -185,10 +203,10 @@
     JOURS.forEach(function(j) { html += '<th>' + j + '</th>'; });
     html += '</tr></thead><tbody>';
 
-    ALL_CRENEAUX.forEach(function(creneau) {
+    getAllCRENEAUX().forEach(function(creneau) {
       html += '<tr><td class="creneau-label">' + creneau + '</td>';
       JOURS.forEach(function(jour) {
-        if (!CRENEAUX[jour].includes(creneau)) {
+        if (!getCRENEAUX()[jour].includes(creneau)) {
           html += '<td style="background:#f0ece6"></td>';
         } else {
           var key = jour + '|' + creneau;
