@@ -66,7 +66,8 @@
   .btn-retirer:hover { background: var(--accent); color: white; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .candidat-chip { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .candidats-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .candidat-chip { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; width: fit-content; min-width: 160px; max-width: 280px; }
   .candidat-chip:hover { filter: brightness(0.9); }
   .candidat-chip .chip-nom { font-weight: 600; font-size: 13px; }
   .candidat-chip .chip-charge { font-size: 11px; margin-top: 3px; opacity: 0.8; }
@@ -447,11 +448,22 @@
 
   async function affecter(coursRowId, ensRowId) {
     try {
+      // Sauvegarder les accordéons ouverts
+      var ouverts = [];
+      document.querySelectorAll('.cours-body.open').forEach(function(el) {
+        ouverts.push(el.id.replace('body-', ''));
+      });
       await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: ensRowId }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = ensRowId;
       showToast('Affectation enregistrée !', 'success');
       render();
+      // Restaurer les accordéons ouverts
+      ouverts.forEach(function(id) {
+        var body = document.getElementById('body-' + id);
+        var chevron = document.getElementById('chevron-' + id);
+        if (body) { body.classList.add('open'); if (chevron) chevron.classList.add('open'); }
+      });
     } catch(err) { showToast('Erreur : ' + err.message, 'error'); }
   }
 
@@ -477,11 +489,18 @@
 
   async function retirer(coursRowId) {
     try {
+      var ouverts = [];
+      document.querySelectorAll('.cours-body.open').forEach(function(el) { ouverts.push(el.id.replace('body-', '')); });
       await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: null }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = null;
       showToast('Affectation retirée.', 'success');
       render();
+      ouverts.forEach(function(id) {
+        var body = document.getElementById('body-' + id);
+        var chevron = document.getElementById('chevron-' + id);
+        if (body) { body.classList.add('open'); if (chevron) chevron.classList.add('open'); }
+      });
     } catch(err) { showToast('Erreur : ' + err.message, 'error'); }
   }
 
