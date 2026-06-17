@@ -66,9 +66,18 @@
   .btn-retirer:hover { background: var(--accent); color: white; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .candidats-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .candidat-chip { background: #f0ece6; border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .candidat-chip:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .candidat-chip { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .candidat-chip:hover { filter: brightness(0.9); }
+  .candidat-chip .chip-nom { font-weight: 600; font-size: 13px; }
+  .candidat-chip .chip-charge { font-size: 11px; margin-top: 3px; opacity: 0.8; }
+  .chip-vert { background: #e8f4ee; border-color: #2d6a4f; }
+  .chip-vert .chip-nom { color: #2d6a4f; }
+  .chip-jaune { background: #fffbe6; border-color: #c8a800; }
+  .chip-jaune .chip-nom { color: #8a6a00; }
+  .chip-orange { background: #fff3e0; border-color: #e67e22; }
+  .chip-orange .chip-nom { color: #b85c00; }
+  .chip-rouge { background: #fdf0ef; border-color: #c0392b; }
+  .chip-rouge .chip-nom { color: #c0392b; }
 
   .manual-input { display: flex; gap: 8px; margin-top: 8px; }
   .manual-input input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; }
@@ -295,11 +304,39 @@
     return rows;
   }
 
-  function nomEnseignant(rowId) {
+  function infoEnseignant(rowId) {
     if (!rowId) return null;
     var idx = enseignantsData.id.indexOf(rowId);
     if (idx === -1) return null;
-    return ((enseignantsData.Nom || [])[idx] || '') + ((enseignantsData.Prenom || [])[idx] ? ' ' + (enseignantsData.Prenom || [])[idx] : '');
+    return {
+      nom: ((enseignantsData.Nom||[])[idx]||'') + ((enseignantsData.Prenom||[])[idx] ? ' ' + (enseignantsData.Prenom||[])[idx] : ''),
+      corps: (enseignantsData.Corps||[])[idx] || '',
+      quotite: parseFloat((enseignantsData.Quotite||[])[idx]) || 0,
+      quotiteMax: parseFloat((enseignantsData.Quotite_max||[])[idx]) || 0,
+      totalHetd: parseFloat((enseignantsData.Total_hetd||[])[idx]) || 0,
+      campus: (enseignantsData.Campus||[])[idx] || ''
+    };
+  }
+
+  function couleurCandidat(info) {
+    var corps = info.corps;
+    var q = info.quotite;
+    var qmax = info.quotiteMax;
+    var total = info.totalHetd;
+    if (corps === 'AFF') {
+      if (total <= q * 1.25 && total < qmax) return 'chip-vert';
+      if (total <= q * 1.5 && total < qmax) return 'chip-jaune';
+      if (total < qmax) return 'chip-orange';
+      return 'chip-rouge';
+    } else {
+      if (total <= qmax) return 'chip-vert';
+      return 'chip-rouge';
+    }
+  }
+
+  function nomEnseignant(rowId) {
+    var info = infoEnseignant(rowId);
+    return info ? info.nom : null;
   }
 
   function render() {
@@ -351,14 +388,24 @@
           var candidatsHtml = row.candidats.length > 0
             ? '<div class="section-label">Candidats</div><div class="candidats-list">' +
               row.candidats.map(function(cid) {
-                var nom = nomEnseignant(cid);
-                return nom ? '<div class="candidat-chip" onclick="affecter(' + row.rowId + ',' + cid + ')">' + esc(nom) + '</div>' : '';
+                var info = infoEnseignant(cid);
+                if (!info) return '';
+                var couleur = couleurCandidat(info);
+                var chargeStr = info.quotite + ' h / ' + info.totalHetd + ' h affectées / max ' + info.quotiteMax + ' h';
+                return '<div class="candidat-chip ' + couleur + '" onclick="affecter(' + row.rowId + ',' + cid + ')">' +
+                  '<div class="chip-nom">' + esc(info.nom) + '</div>' +
+                  '<div class="chip-charge">' + esc(chargeStr) + '</div>' +
+                  '</div>';
               }).join('') + '</div>'
             : '<div class="section-label" style="margin-bottom:12px">Aucun candidat</div>';
 
           var affecteHtml = affecteNom
             ? '<div class="affecte-actuel"><div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Enseignant affecté</div><div class="nom">' + esc(affecteNom) + '</div></div><button class="btn-retirer" onclick="retirer(' + row.rowId + ')">Retirer</button></div>'
             : '';
+
+          var campusCours = row.campus || '';
+          var campusAutorises = campusCours === 'Saint-Germain-en-Laye' ? ['Cergy', 'Saint-Germain-en-Laye'] : [campusCours];
+          var datalistId = 'enseignants-list-' + row.rowId;
 
           html += '<div class="cours-card ' + etat + '" id="card-' + row.rowId + '">' +
             '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
@@ -371,20 +418,22 @@
               affecteHtml + candidatsHtml +
               '<div class="section-label">Saisie manuelle</div>' +
               '<div class="manual-input">' +
-                '<input type="text" id="input-' + row.rowId + '" placeholder="Nom de l\'enseignant..." list="enseignants-list">' +
+                '<input type="text" id="input-' + row.rowId + '" placeholder="Nom de l\'enseignant..." list="' + datalistId + '">' +
                 '<button class="btn-affecter" onclick="affecterManuel(' + row.rowId + ')">Affecter</button>' +
               '</div>' +
+              '<datalist id="' + datalistId + '">' +
+              enseignantsData.id.map(function(id, i) {
+                var campusEns = (enseignantsData.Campus||[])[i] || '';
+                if (campusAutorises.indexOf(campusEns) === -1) return '';
+                return '<option value="' + esc(((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'')) + '">';
+              }).join('') +
+              '</datalist>' +
             '</div></div>';
         });
         html += '</div>';
       });
       html += '</div>';
     });
-
-    html += '<datalist id="enseignants-list">' +
-      enseignantsData.id.map(function(id, i) {
-        return '<option value="' + esc(((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'')) + '">';
-      }).join('') + '</datalist>';
 
     el.innerHTML = html;
   }
@@ -410,13 +459,18 @@
     var input = document.getElementById('input-' + coursRowId);
     var nom = input.value.trim();
     if (!nom) return;
+    var row = coursData.find(function(r) { return r.rowId === coursRowId; });
+    var campusCours = row ? row.campus : '';
+    var campusAutorises = campusCours === 'Saint-Germain-en-Laye' ? ['Cergy', 'Saint-Germain-en-Laye'] : [campusCours];
     var found = null;
     enseignantsData.id.forEach(function(id, i) {
+      var campusEns = (enseignantsData.Campus||[])[i] || '';
+      if (campusAutorises.indexOf(campusEns) === -1) return;
       var nomComplet = ((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'');
       var nomSeul = (enseignantsData.Nom||[])[i] || '';
       if (nomComplet.trim() === nom || nomSeul.trim() === nom) found = id;
     });
-    if (!found) { showToast('Enseignant "' + nom + '" non trouvé.', 'error'); return; }
+    if (!found) { showToast('Enseignant "' + nom + '" non trouvé sur ce campus.', 'error'); return; }
     await affecter(coursRowId, found);
     input.value = '';
   }
