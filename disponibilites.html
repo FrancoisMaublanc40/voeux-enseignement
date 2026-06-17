@@ -139,6 +139,7 @@
         const idx = 0;
         enseignantRowId = enseignantsData.id[idx];
         campusEnseignant = (enseignantsData.Campus || [])[idx] || 'Cergy';
+        console.log('campus enseignant:', campusEnseignant, 'colonnes:', Object.keys(enseignantsData).join(', '));
         afficherNom(idx);
         await chargerDispos();
         renderGrille();
