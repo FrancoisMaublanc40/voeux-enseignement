@@ -456,10 +456,10 @@
       await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: ensRowId }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = ensRowId;
-      console.log('après affectation, row:', JSON.stringify({rowId: row.rowId, affecte: row.affecte, candidats: row.candidats}));
+      // Recharger Enseignants pour avoir Total_hetd à jour
+      enseignantsData = await grist.docApi.fetchTable('Enseignants');
       showToast('Affectation enregistrée !', 'success');
       render();
-      console.log('après render, body-' + coursRowId + ':', document.getElementById('body-' + coursRowId) ? document.getElementById('body-' + coursRowId).innerHTML.substring(0, 100) : 'non trouvé');
       // Restaurer les accordéons ouverts
       ouverts.forEach(function(id) {
         var body = document.getElementById('body-' + id);
@@ -496,6 +496,7 @@
       await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: null }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = null;
+      enseignantsData = await grist.docApi.fetchTable('Enseignants');
       showToast('Affectation retirée.', 'success');
       render();
       ouverts.forEach(function(id) {
