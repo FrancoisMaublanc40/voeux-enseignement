@@ -15,7 +15,7 @@
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
-  header { margin-bottom: 28px; }
+  header { margin-bottom: 20px; }
   header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
   #user-info { margin-top: 6px; font-size: 13px; color: var(--muted); }
   #user-info span { font-weight: 500; color: var(--accent); }
@@ -24,95 +24,68 @@
   .selector-box label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
   .selector-box select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
 
-  .stats-bar {
-    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
-  }
-  .stat-box {
+  .filtres {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 12px 18px; flex: 1; min-width: 120px; box-shadow: var(--shadow);
+    padding: 16px; margin-bottom: 20px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
   }
+  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+  .filtre-group select:focus { border-color: var(--accent); }
+
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; flex: 1; min-width: 120px; box-shadow: var(--shadow); }
   .stat-box .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
   .stat-box .value { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent); }
 
-  .cours-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden;
-  }
-  .cours-card.affecte { border-color: var(--accent); }
+  /* Couleurs fond selon état */
+  .cours-card { border-radius: 10px; margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
+  .cours-card.etat-blanc { background: #ffffff; border-color: var(--border); }
+  .cours-card.etat-jaune { background: #fffbe6; border-color: #f0d060; }
+  .cours-card.etat-vert { background: #e8f4ee; border-color: var(--accent); }
 
-  .cours-header {
-    padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    cursor: pointer; user-select: none;
-  }
-  .cours-header:hover { background: #faf8f4; }
+  .cours-header { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; user-select: none; }
+  .cours-header:hover { filter: brightness(0.97); }
   .cours-header-left { flex: 1; min-width: 0; }
   .cours-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-  .cours-title { font-size: 14px; font-weight: 500; flex: 1; }
+  .cours-title { font-size: 14px; font-weight: 500; }
   .cours-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-  .badge-affecte {
-    font-size: 11px; font-weight: 600; color: var(--accent);
-    background: var(--accent-light); border-radius: 20px; padding: 2px 10px; white-space: nowrap;
-  }
-  .badge-non-affecte {
-    font-size: 11px; font-weight: 600; color: var(--muted);
-    background: #f0ece6; border-radius: 20px; padding: 2px 10px; white-space: nowrap;
-  }
+  .badge-affecte { font-size: 11px; font-weight: 600; color: var(--accent); background: #c8e8d8; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .badge-candidats { font-size: 11px; font-weight: 600; color: #8a6a00; background: #fff0a0; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .badge-vide { font-size: 11px; font-weight: 600; color: var(--muted); background: #f0ece6; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
   .chevron { color: var(--muted); transition: transform 0.2s; font-size: 12px; }
   .chevron.open { transform: rotate(180deg); }
 
   .cours-body { border-top: 1px solid var(--border); padding: 16px 18px; display: none; }
   .cours-body.open { display: block; }
 
-  .affecte-actuel {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--accent-light); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
-  }
+  .affecte-actuel { display: flex; align-items: center; justify-content: space-between; background: var(--accent-light); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
   .affecte-actuel .nom { font-weight: 600; color: var(--accent); font-size: 14px; }
-  .btn-retirer {
-    background: none; border: 1px solid var(--accent); color: var(--accent);
-    border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
-  }
+  .btn-retirer { background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .btn-retirer:hover { background: var(--accent); color: white; }
 
   .section-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-
   .candidats-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .candidat-chip {
-    background: #f0ece6; border: 1px solid var(--border); border-radius: 20px;
-    padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s;
-  }
+  .candidat-chip { background: #f0ece6; border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
   .candidat-chip:hover { background: var(--accent); color: white; border-color: var(--accent); }
 
   .manual-input { display: flex; gap: 8px; margin-top: 8px; }
-  .manual-input input {
-    flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
-  }
+  .manual-input input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; }
   .manual-input input:focus { border-color: var(--accent); }
-  .btn-affecter {
-    background: var(--accent); color: white; border: none; border-radius: 7px;
-    padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-  }
+  .btn-affecter { background: var(--accent); color: white; border: none; border-radius: 7px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .btn-affecter:hover { background: #235c42; }
+
+  .groupe-annee { margin-bottom: 32px; }
+  .groupe-annee h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  .groupe-semestre { margin-bottom: 20px; }
+  .groupe-semestre h3 { font-size: 13px; font-weight: 700; color: white; background: var(--muted); border-radius: 6px; padding: 6px 14px; display: inline-block; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
 
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
   .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
   .error-box { background: var(--danger-light); border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
 
-  .groupe-annee { margin-bottom: 32px; }
-  .groupe-annee h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
-  .groupe-semestre { margin-bottom: 24px; }
-  .groupe-semestre h3 { font-size: 13px; font-weight: 700; color: white; background: var(--muted); border-radius: 6px; padding: 6px 14px; display: inline-block; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
-
-  #toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px;
-    font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s ease;
-    pointer-events: none; z-index: 100;
-  }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 100; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.success { background: var(--accent); }
   #toast.error { background: var(--danger); }
@@ -133,6 +106,16 @@
   </select>
 </div>
 
+<div id="filtres-box" class="filtres" style="display:none">
+  <div class="filtre-group"><label>Campus</label><select id="f-campus" onchange="renderFiltres()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Cycle</label><select id="f-cycle" onchange="renderFiltres()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Spécialité</label><select id="f-specialite" onchange="renderFiltres()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group"><label>Année</label><select id="f-annee" onchange="renderFiltres()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group"><label>Semestre</label><select id="f-semestre" onchange="renderFiltres()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Option</label><select id="f-option" onchange="renderFiltres()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group" style="display:flex;align-items:flex-end"><button onclick="resetFiltres()" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--muted)">↺ Réinitialiser</button></div>
+</div>
+
 <div id="stats-bar" class="stats-bar" style="display:none"></div>
 <div id="content"><div class="loader">Chargement…</div></div>
 <div id="toast"></div>
@@ -142,18 +125,12 @@
   let enseignantsData = null;
   let responsablesData = null;
   let responsableRowId = null;
-  let responsablePerimetres = []; // [{campus, cycle, specialite}]
+  let responsablePerimetres = [];
   let loading = false;
 
   grist.ready({ requiredAccess: 'full' });
-
-  grist.onOptions(function() {
-    if (!responsableRowId && !loading) initialLoad();
-  });
-
-  grist.on('message', async function(e) {
-    if (e.tableId && !responsableRowId && !loading) await initialLoad();
-  });
+  grist.onOptions(function() { if (!responsableRowId && !loading) initialLoad(); });
+  grist.on('message', async function(e) { if (e.tableId && !responsableRowId && !loading) await initialLoad(); });
 
   async function initialLoad() {
     loading = true;
@@ -162,26 +139,19 @@
       responsablesData = await grist.docApi.fetchTable('Responsables');
       await reloadCours();
 
-      // Chercher le responsable parmi les lignes visibles de Responsables
       if (responsablesData.id.length === 0) {
         showError('Vous n\'êtes pas référencé comme responsable.');
         loading = false;
         return;
       }
 
-      // Si une seule ligne visible dans Enseignants → identification auto
       if (enseignantsData.id.length === 1) {
-        const ensIdx = 0;
-        const ensRowId = enseignantsData.id[ensIdx];
-        identifierResponsable(ensRowId);
+        identifierResponsable(enseignantsData.id[0]);
       } else {
         afficherSelecteur();
       }
-    } catch(err) {
-      showError('Erreur : ' + err.message);
-    } finally {
-      loading = false;
-    }
+    } catch(err) { showError('Erreur : ' + err.message); }
+    finally { loading = false; }
   }
 
   function identifierResponsable(ensRowId) {
@@ -192,7 +162,6 @@
     const nomAffiche = (nomCol[idx] || '') + (prenomCol[idx] ? ' ' + prenomCol[idx] : '');
     document.getElementById('user-info').innerHTML = 'Responsable : <span>' + nomAffiche + '</span>';
 
-    // Récupérer les périmètres du responsable
     const ensCol = responsablesData.Enseignant || [];
     const campusCol = responsablesData.Campus || [];
     const cycleCol = responsablesData.Cycle || [];
@@ -200,15 +169,13 @@
     responsablePerimetres = [];
     responsablesData.id.forEach(function(id, i) {
       if (ensCol[i] === ensRowId) {
-        responsablePerimetres.push({
-          campus: campusCol[i],
-          cycle: cycleCol[i],
-          specialite: specCol[i]
-        });
+        responsablePerimetres.push({ campus: campusCol[i], cycle: cycleCol[i], specialite: specCol[i] });
       }
     });
 
     hideError();
+    document.getElementById('filtres-box').style.display = 'grid';
+    peuplerFiltres();
     render();
   }
 
@@ -219,24 +186,24 @@
       var cands = candidatsRaw[i];
       return {
         rowId: id,
-        label: cours.Cours_label ? cours.Cours_label[i] : '',
-        campus: cours.Campus ? cours.Campus[i] : '',
-        cycle: cours.Cycle ? cours.Cycle[i] : '',
-        specialite: cours.Specialite ? cours.Specialite[i] : '',
-        annee: cours.Annee ? cours.Annee[i] : 0,
-        semestre: cours.Semestre ? cours.Semestre[i] : 0,
-        hetd: cours.Volume_hetd ? cours.Volume_hetd[i] : 0,
-        affecte: cours.Enseignant_affecte ? cours.Enseignant_affecte[i] : null,
+        label: (cours.Cours_label || [])[i] || '',
+        campus: (cours.Campus || [])[i] || '',
+        cycle: (cours.Cycle || [])[i] || '',
+        specialite: (cours.Specialite || [])[i] || '',
+        annee: (cours.Annee || [])[i] || 0,
+        semestre: (cours.Semestre || [])[i] || 0,
+        option: (cours.Option || [])[i] || '',
+        hetd: (cours.Volume_hetd || [])[i] || 0,
+        affecte: (cours.Enseignant_affecte || [])[i] || null,
         candidats: Array.isArray(cands) ? cands.filter(function(x){ return typeof x === 'number' && x > 0; }) : (cands && typeof cands === 'number' ? [cands] : [])
       };
-    });
+    }).filter(function(r) { return r.label.length > 3; });
   }
 
   function afficherSelecteur() {
     document.getElementById('user-info').textContent = 'Veuillez vous identifier';
     const nomCol = enseignantsData.Nom || [];
     const prenomCol = enseignantsData.Prenom || [];
-    // Ne montrer que les enseignants qui sont responsables
     const ensIds = new Set((responsablesData.Enseignant || []).filter(Boolean));
     const sel = document.getElementById('responsable-select');
     enseignantsData.id.forEach(function(id, i) {
@@ -256,94 +223,158 @@
     identifierResponsable(parseInt(val));
   }
 
-  function coursDansPerimetre(cours) {
+  function coursDansPerimetre(row) {
     return responsablePerimetres.some(function(p) {
-      return p.campus === cours.campus && p.cycle === cours.cycle && p.specialite === cours.specialite;
+      return p.campus === row.campus && p.cycle === row.cycle && p.specialite === row.specialite;
     });
+  }
+
+  function peuplerFiltres() {
+    var rowsBase = coursData.filter(coursDansPerimetre);
+
+    function peuplerSelect(id, vals, label) {
+      var sel = document.getElementById(id);
+      var current = sel.value;
+      sel.innerHTML = '<option value="">' + label + '</option>';
+      [...new Set(vals.filter(function(v){ return v !== null && v !== undefined && String(v).trim() !== ''; }))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
+        var opt = document.createElement('option');
+        opt.value = String(v); opt.textContent = String(v);
+        if (String(v) === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fSpec = document.getElementById('f-specialite').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+
+    peuplerSelect('f-campus', rowsBase.map(function(r){return r.campus;}), 'Tous');
+    var r1 = fCampus ? rowsBase.filter(function(r){return r.campus===fCampus;}) : rowsBase;
+    peuplerSelect('f-cycle', r1.map(function(r){return r.cycle;}), 'Tous');
+    var r2 = fCycle ? r1.filter(function(r){return r.cycle===fCycle;}) : r1;
+    peuplerSelect('f-specialite', r2.map(function(r){return r.specialite;}), 'Toutes');
+    var r3 = fSpec ? r2.filter(function(r){return r.specialite===fSpec;}) : r2;
+    peuplerSelect('f-annee', r3.map(function(r){return r.annee;}), 'Toutes');
+    var r4 = fAnnee ? r3.filter(function(r){return String(r.annee)===fAnnee;}) : r3;
+    // Semestre : afficher toutes les valeurs disponibles à ce stade (sans filtre semestre)
+    peuplerSelect('f-semestre', r4.map(function(r){return r.semestre;}), 'Tous');
+    var r5 = fSemestre ? r4.filter(function(r){return String(r.semestre)===fSemestre;}) : r4;
+    // Option : afficher toutes les valeurs disponibles après filtre semestre
+    peuplerSelect('f-option', r5.map(function(r){return r.option;}), 'Toutes');
+  }
+
+  function resetFiltres() {
+    ['f-campus','f-cycle','f-specialite','f-annee','f-semestre','f-option'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    peuplerFiltres();
+    render();
+  }
+
+  function renderFiltres() {
+    peuplerFiltres();
+    render();
+  }
+
+  function getRowsFiltrees() {
+    var rows = coursData.filter(coursDansPerimetre);
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fSpec = document.getElementById('f-specialite').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+    var fOption = document.getElementById('f-option').value;
+    if (fCampus) rows = rows.filter(function(r){return r.campus===fCampus;});
+    if (fCycle) rows = rows.filter(function(r){return r.cycle===fCycle;});
+    if (fSpec) rows = rows.filter(function(r){return r.specialite===fSpec;});
+    if (fAnnee) rows = rows.filter(function(r){return String(r.annee)===fAnnee;});
+    if (fSemestre) rows = rows.filter(function(r){return String(r.semestre)===fSemestre;});
+    if (fOption) rows = rows.filter(function(r){return r.option===fOption;});
+    return rows;
   }
 
   function nomEnseignant(rowId) {
     if (!rowId) return null;
-    const idx = enseignantsData.id.indexOf(rowId);
+    var idx = enseignantsData.id.indexOf(rowId);
     if (idx === -1) return null;
-    const nomCol = enseignantsData.Nom || [];
-    const prenomCol = enseignantsData.Prenom || [];
-    return (nomCol[idx] || '') + (prenomCol[idx] ? ' ' + prenomCol[idx] : '');
+    return ((enseignantsData.Nom || [])[idx] || '') + ((enseignantsData.Prenom || [])[idx] ? ' ' + (enseignantsData.Prenom || [])[idx] : '');
   }
 
   function render() {
-    const rows = coursData.filter(coursDansPerimetre);
-    const total = rows.length;
-    const affectes = rows.filter(function(r) { return r.affecte; }).length;
+    var rows = getRowsFiltrees();
+    var total = rows.length;
+    var affectes = rows.filter(function(r) { return r.affecte; }).length;
+    var avecCandidats = rows.filter(function(r) { return !r.affecte && r.candidats.length > 0; }).length;
 
-    // Stats
-    const statsBar = document.getElementById('stats-bar');
+    var statsBar = document.getElementById('stats-bar');
     statsBar.style.display = 'flex';
     statsBar.innerHTML =
-      '<div class="stat-box"><div class="label">Cours total</div><div class="value">' + total + '</div></div>' +
-      '<div class="stat-box"><div class="label">Affectés</div><div class="value">' + affectes + '</div></div>' +
-      '<div class="stat-box"><div class="label">À affecter</div><div class="value">' + (total - affectes) + '</div></div>';
+      '<div class="stat-box"><div class="label">Total</div><div class="value">' + total + '</div></div>' +
+      '<div class="stat-box"><div class="label">✅ Affectés</div><div class="value">' + affectes + '</div></div>' +
+      '<div class="stat-box"><div class="label">🟡 Avec candidats</div><div class="value">' + avecCandidats + '</div></div>' +
+      '<div class="stat-box"><div class="label">⬜ Sans candidat</div><div class="value">' + (total - affectes - avecCandidats) + '</div></div>';
 
-    const el = document.getElementById('content');
+    var el = document.getElementById('content');
     if (rows.length === 0) {
       el.innerHTML = '<div class="empty-state">Aucun cours dans votre périmètre.</div>';
       return;
     }
 
-    // Grouper par Année puis Semestre
+    // Grouper par Cycle+Annee puis Semestre
     var groupes = {};
     rows.forEach(function(row) {
-      var annee = row.annee || '?';
+      var groupeLabel = (row.cycle || '') + ' ' + (row.annee || '?');
       var semestre = row.semestre || '?';
-      if (!groupes[annee]) groupes[annee] = {};
-      if (!groupes[annee][semestre]) groupes[annee][semestre] = [];
-      groupes[annee][semestre].push(row);
+      if (!groupes[groupeLabel]) groupes[groupeLabel] = { annee: row.annee, semestres: {} };
+      if (!groupes[groupeLabel].semestres[semestre]) groupes[groupeLabel].semestres[semestre] = [];
+      groupes[groupeLabel].semestres[semestre].push(row);
     });
 
     var html = '';
-    Object.keys(groupes).sort().forEach(function(annee) {
-      html += '<div class="groupe-annee"><h2>Année ' + esc(annee) + '</h2>';
-      Object.keys(groupes[annee]).sort().forEach(function(semestre) {
+    Object.keys(groupes).sort().forEach(function(groupeLabel) {
+      var g = groupes[groupeLabel];
+      html += '<div class="groupe-annee"><h2>' + esc(groupeLabel) + '</h2>';
+      Object.keys(g.semestres).sort().forEach(function(semestre) {
         html += '<div class="groupe-semestre"><h3>Semestre ' + esc(semestre) + '</h3>';
-        groupes[annee][semestre].forEach(function(row) {
+        g.semestres[semestre].forEach(function(row) {
           var affecteNom = nomEnseignant(row.affecte);
-          var candidatsHtml = '';
-          if (row.candidats.length > 0) {
-            candidatsHtml = '<div class="section-label">Candidats</div><div class="candidats-list">' +
+          var etat = affecteNom ? 'etat-vert' : (row.candidats.length > 0 ? 'etat-jaune' : 'etat-blanc');
+
+          var badge = affecteNom
+            ? '<span class="badge-affecte">✓ ' + esc(affecteNom) + '</span>'
+            : (row.candidats.length > 0
+              ? '<span class="badge-candidats">' + row.candidats.length + ' candidat' + (row.candidats.length > 1 ? 's' : '') + '</span>'
+              : '<span class="badge-vide">Aucun candidat</span>');
+
+          var candidatsHtml = row.candidats.length > 0
+            ? '<div class="section-label">Candidats</div><div class="candidats-list">' +
               row.candidats.map(function(cid) {
                 var nom = nomEnseignant(cid);
-                if (!nom) return '';
-                return '<div class="candidat-chip" onclick="affecter(' + row.rowId + ',' + cid + ')">' + esc(nom) + '</div>';
-              }).join('') +
-            '</div>';
-          } else {
-            candidatsHtml = '<div class="section-label" style="margin-bottom:12px">Aucun candidat</div>';
-          }
+                return nom ? '<div class="candidat-chip" onclick="affecter(' + row.rowId + ',' + cid + ')">' + esc(nom) + '</div>' : '';
+              }).join('') + '</div>'
+            : '<div class="section-label" style="margin-bottom:12px">Aucun candidat</div>';
 
-          var affecteHtml = '';
-          if (affecteNom) {
-            affecteHtml = '<div class="affecte-actuel"><div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Enseignant affecté</div><div class="nom">' + esc(affecteNom) + '</div></div><button class="btn-retirer" onclick="retirer(' + row.rowId + ')">Retirer</button></div>';
-          }
+          var affecteHtml = affecteNom
+            ? '<div class="affecte-actuel"><div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">Enseignant affecté</div><div class="nom">' + esc(affecteNom) + '</div></div><button class="btn-retirer" onclick="retirer(' + row.rowId + ')">Retirer</button></div>'
+            : '';
 
-          html += '<div class="cours-card ' + (affecteNom ? 'affecte' : '') + '" id="card-' + row.rowId + '">' +
+          html += '<div class="cours-card ' + etat + '" id="card-' + row.rowId + '">' +
             '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
               '<div class="cours-header-left"><div class="cours-title">' + esc(row.label) + '</div>' +
               '<div class="cours-meta">' + (row.hetd || 0) + ' h</div></div>' +
-              '<div class="cours-header-right">' +
-              (affecteNom ? '<span class="badge-affecte">✓ ' + esc(affecteNom) + '</span>' : '<span class="badge-non-affecte">À affecter</span>') +
-              '<span class="chevron" id="chevron-' + row.rowId + '">▼</span>' +
-              '</div>' +
+              '<div class="cours-header-right">' + badge +
+              '<span class="chevron" id="chevron-' + row.rowId + '">▼</span></div>' +
             '</div>' +
             '<div class="cours-body" id="body-' + row.rowId + '">' +
-              affecteHtml +
-              candidatsHtml +
+              affecteHtml + candidatsHtml +
               '<div class="section-label">Saisie manuelle</div>' +
               '<div class="manual-input">' +
                 '<input type="text" id="input-' + row.rowId + '" placeholder="Nom de l\'enseignant..." list="enseignants-list">' +
                 '<button class="btn-affecter" onclick="affecterManuel(' + row.rowId + ')">Affecter</button>' +
               '</div>' +
-            '</div>' +
-          '</div>';
+            '</div></div>';
         });
         html += '</div>';
       });
@@ -351,11 +382,9 @@
     });
 
     html += '<datalist id="enseignants-list">' +
-    enseignantsData.id.map(function(id, i) {
-      var nom = (enseignantsData.Nom ? enseignantsData.Nom[i] : '') + (enseignantsData.Prenom ? ' ' + enseignantsData.Prenom[i] : '');
-      return '<option value="' + esc(nom) + '">';
-    }).join('') +
-    '</datalist>';
+      enseignantsData.id.map(function(id, i) {
+        return '<option value="' + esc(((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'')) + '">';
+      }).join('') + '</datalist>';
 
     el.innerHTML = html;
   }
@@ -369,73 +398,52 @@
 
   async function affecter(coursRowId, ensRowId) {
     try {
-      await grist.docApi.applyUserActions([
-        ['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: ensRowId }]
-      ]);
+      await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: ensRowId }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = ensRowId;
       showToast('Affectation enregistrée !', 'success');
       render();
-    } catch(err) {
-      showToast('Erreur : ' + err.message, 'error');
-    }
+    } catch(err) { showToast('Erreur : ' + err.message, 'error'); }
   }
 
   async function affecterManuel(coursRowId) {
     var input = document.getElementById('input-' + coursRowId);
     var nom = input.value.trim();
     if (!nom) return;
-    // Chercher le rowId correspondant au nom saisi
     var found = null;
     enseignantsData.id.forEach(function(id, i) {
-      var nomComplet = (enseignantsData.Nom ? enseignantsData.Nom[i] : '') + (enseignantsData.Prenom ? ' ' + enseignantsData.Prenom[i] : '');
-      var nomSeul = enseignantsData.Nom ? enseignantsData.Nom[i] : '';
+      var nomComplet = ((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'');
+      var nomSeul = (enseignantsData.Nom||[])[i] || '';
       if (nomComplet.trim() === nom || nomSeul.trim() === nom) found = id;
     });
-    if (!found) {
-      showToast('Enseignant "' + nom + '" non trouvé.', 'error');
-      return;
-    }
+    if (!found) { showToast('Enseignant "' + nom + '" non trouvé.', 'error'); return; }
     await affecter(coursRowId, found);
     input.value = '';
   }
 
   async function retirer(coursRowId) {
     try {
-      await grist.docApi.applyUserActions([
-        ['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: null }]
-      ]);
+      await grist.docApi.applyUserActions([['UpdateRecord', 'Cours', coursRowId, { Enseignant_affecte: null }]]);
       var row = coursData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.affecte = null;
       showToast('Affectation retirée.', 'success');
       render();
-    } catch(err) {
-      showToast('Erreur : ' + err.message, 'error');
-    }
+    } catch(err) { showToast('Erreur : ' + err.message, 'error'); }
   }
 
-  function esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   var toastTimer;
   function showToast(msg, type) {
     var t = document.getElementById('toast');
     t.textContent = msg;
-    t.className = 'show ' + (type || '');
+    t.className = 'show ' + (type||'');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function() { t.className = ''; }, 3000);
   }
 
-  function showError(msg) {
-    document.getElementById('error-box').textContent = msg;
-    document.getElementById('error-box').style.display = 'block';
-    document.getElementById('content').innerHTML = '';
-  }
-
-  function hideError() {
-    document.getElementById('error-box').style.display = 'none';
-  }
+  function showError(msg) { document.getElementById('error-box').textContent = msg; document.getElementById('error-box').style.display = 'block'; document.getElementById('content').innerHTML = ''; }
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
 
   initialLoad();
 </script>
