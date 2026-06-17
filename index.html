@@ -311,12 +311,26 @@
     peuplerSelect('f-option', r4.map(function(r){return r.option;}), 'Toutes les options');
   }
 
+  function campusAutorises(campusEnseignant) {
+    if (!campusEnseignant) return null;
+    var c = campusEnseignant.toLowerCase();
+    if (c === 'cergy') return ['Cergy', 'Saint-Germain-en-Laye', 'Saint Germain en Laye', 'Saint-Germain'];
+    return [campusEnseignant];
+  }
+
   function render() {
     if (!enseignantRowId) return;
     var rows = tableData.slice();
     if (enseignantDiscipline) {
       rows = rows.filter(function(r) {
         return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
+      });
+    }
+    // Filtre campus selon règle métier
+    var campus = campusAutorises(enseignantCampus);
+    if (campus) {
+      rows = rows.filter(function(r) {
+        return campus.some(function(c) { return c.toLowerCase() === (r.campus || '').toLowerCase(); });
       });
     }
     if (currentTab === 'mes') {
@@ -356,7 +370,7 @@
       + (inscrit ? '<span class="badge-inscrit">✓ Inscrit</span>' : '')
       + (inscrit
           ? '<button class="btn btn-desinscrire" onclick="desinscrire(' + row.rowId + ')">Me désinscrire</button>'
-          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Je postule</button>')
+          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Candidater</button>')
       + '</div>';
   }
 
