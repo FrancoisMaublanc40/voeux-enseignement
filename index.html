@@ -15,52 +15,68 @@
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
-  header { margin-bottom: 28px; }
+  header { margin-bottom: 20px; }
   header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
   #user-info { margin-top: 6px; font-size: 13px; color: var(--muted); }
   #user-info span { font-weight: 500; color: var(--accent); }
+
   .selector-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
   .selector-box label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; }
   .selector-box select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
-  .selector-box select:focus { border-color: var(--accent); }
+
+  .compteurs { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .compteur-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; flex: 1; min-width: 140px; box-shadow: var(--shadow); }
+  .compteur-box .label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .compteur-box .value { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent); }
+  .compteur-box .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .filtres-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+  .filtre-group select:focus { border-color: var(--accent); }
+
   .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
   .tab { flex: 1; padding: 8px; border: none; border-radius: 6px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.18s; }
   .tab.active { background: var(--accent); color: #fff; }
+
+  .groupe-annee { margin-bottom: 32px; }
+  .groupe-annee h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  .groupe-semestre { margin-bottom: 20px; }
+  .groupe-semestre h3 { font-size: 13px; font-weight: 700; color: white; background: var(--muted); border-radius: 6px; padding: 6px 14px; display: inline-block; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
+
   .cours-list { display: flex; flex-direction: column; gap: 10px; }
-  .cours-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: var(--shadow); transition: border-color 0.2s; }
-  .cours-card:hover { border-color: #c8c0b5; }
-  .cours-card.inscrit { border-color: var(--accent); background: var(--accent-light); }
+
+  /* États des cartes */
+  .cours-card { border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: var(--shadow); transition: all 0.2s; border: 1px solid var(--border); background: var(--surface); }
+  .cours-card.etat-blanc { background: var(--surface); border-color: var(--border); }
+  .cours-card.etat-jaune { background: #fffbe6; border-color: #c8a800; }
+  .cours-card.etat-vert { background: #e8f4ee; border-color: #2d6a4f; }
+  .cours-card.etat-rouge { background: #fdf0ef; border-color: #c0392b; }
+  .cours-card.etat-gris { background: #f0ece6; border-color: #d0cbc4; opacity: 0.6; }
+
   .cours-info { flex: 1; min-width: 0; }
   .cours-label { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cours-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
-  .badge-inscrit { font-size: 11px; font-weight: 600; color: var(--accent); background: #c8e8d8; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .cours-status { margin-top: 4px; font-size: 11px; font-weight: 600; }
+  .status-jaune { color: #8a6a00; }
+  .status-vert { color: #2d6a4f; }
+  .status-rouge { color: #c0392b; }
+  .status-gris { color: var(--muted); }
+
   .btn { border: none; border-radius: 7px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
   .btn-postuler { background: var(--accent); color: #fff; }
   .btn-postuler:hover { background: #235c42; }
   .btn-desinscrire { background: var(--danger-light); color: var(--danger); border: 1px solid #f0c0bc; }
   .btn-desinscrire:hover { background: #f9dfdd; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
-  .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+  .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+  .error-box { background: var(--danger-light); border: 1px solid #f0c0bc; border-radius: 8px; padding: 14px 18px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 100; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast.success { background: var(--accent); }
   #toast.error { background: var(--danger); }
-  .filtres-box {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; margin-bottom: 16px; display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
-  }
-  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
-  .filtre-group select:focus { border-color: var(--accent); }
-
-  .cours-card.cm { border-color: #f0b8b8; background: #fde8e8; }
-  .cours-card.td { border-color: #b8c8f0; background: #e8f0fd; }
-  .cours-card.tp { border-color: #f0dbb8; background: #fdf5e8; }
-  .cours-card.inscrit.cm { border-color: #c0392b; background: #f9d0d0; }
-  .cours-card.inscrit.td { border-color: #2d4a8a; background: #d0daf9; }
-  .cours-card.inscrit.tp { border-color: #8a5a2d; background: #f9ecd0; }
 </style>
 </head>
 <body>
@@ -78,32 +94,34 @@
   </select>
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="setTab('tous', this)">Tous les cours</button>
-  <button class="tab" onclick="setTab('mes', this)">Mes vœux</button>
+<div id="compteurs-box" class="compteurs" style="display:none">
+  <div class="compteur-box">
+    <div class="label">⭐ Heures candidatées</div>
+    <div class="value" id="cpt-candidatees">0 h</div>
+    <div class="sub" id="cpt-sub-min"></div>
+  </div>
+  <div class="compteur-box">
+    <div class="label">✅ Heures validées</div>
+    <div class="value" id="cpt-validees">0 h</div>
+    <div class="sub" id="cpt-sub-max"></div>
+  </div>
 </div>
 
 <div id="filtres-box" class="filtres-box" style="display:none">
-  <div class="filtre-group">
-    <label>Campus</label>
-    <select id="f-campus" onchange="render()"><option value="">Tous</option></select>
+  <div class="filtre-group"><label>Campus</label><select id="f-campus" onchange="render()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Cycle</label><select id="f-cycle" onchange="render()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Spécialité</label><select id="f-specialite" onchange="render()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group"><label>Année</label><select id="f-annee" onchange="render()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group"><label>Semestre</label><select id="f-semestre" onchange="render()"><option value="">Tous</option></select></div>
+  <div class="filtre-group"><label>Option</label><select id="f-option" onchange="render()"><option value="">Toutes</option></select></div>
+  <div class="filtre-group" style="display:flex;align-items:flex-end">
+    <button onclick="resetFiltres()" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--muted)">↺ Réinitialiser</button>
   </div>
-  <div class="filtre-group">
-    <label>Cycle</label>
-    <select id="f-cycle" onchange="render()"><option value="">Tous</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Année</label>
-    <select id="f-annee" onchange="render()"><option value="">Toutes</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Semestre</label>
-    <select id="f-semestre" onchange="render()"><option value="">Tous</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Option</label>
-    <select id="f-option" onchange="render()"><option value="">Toutes</option></select>
-  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="setTab('tous', this)">Tous les cours</button>
+  <button class="tab" onclick="setTab('mes', this)">Mes vœux</button>
 </div>
 
 <div id="content"><div class="loader">Chargement des cours…</div></div>
@@ -111,122 +129,85 @@
 
 <script>
   let tableData = [];
+  let enseignantsData = null;
   let enseignantRowId = null;
   let enseignantDiscipline = null;
   let enseignantCampus = null;
+  let enseignantQuotite = 0;
+  let enseignantQuotiteMax = 0;
   let currentTab = 'tous';
   let busy = false;
   let loading = false;
-  let enseignantsData = null;
-
-  let urlToken = null;
 
   grist.ready({ requiredAccess: 'full' });
-
-  // Récupérer le token depuis les paramètres de l'URL Grist
-  grist.onOptions(function(opts, interaction) {
-    console.log('opts:', JSON.stringify(opts));
-    console.log('interaction:', JSON.stringify(interaction));
-    if (!urlToken && interaction && interaction.linkKeys && interaction.linkKeys.token) {
-      urlToken = interaction.linkKeys.token;
-    }
-    console.log('urlToken final:', urlToken);
-    if (!enseignantRowId && !loading) initialLoad();
-  });
-
-  grist.on('message', async (e) => {
-    // Ne rien faire ici, initialLoad est géré par onOptions
-  });
+  grist.onOptions(function() { if (!enseignantRowId && !loading) initialLoad(); });
+  grist.on('message', async function(e) { if (e.tableId && !enseignantRowId && !loading) await initialLoad(); });
 
   async function initialLoad() {
     loading = true;
     try {
-      // 1. Vérifier si l'utilisateur est responsable
       let responsablesData = null;
       try { responsablesData = await grist.docApi.fetchTable('Responsables'); } catch(e) {}
-
-      // Charger enseignants
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
-
-      // Charger cours
       await reloadCours();
 
-      // 2. Si une ligne visible dans Responsables → c'est un responsable
-      if (responsablesData && responsablesData.id.length >= 1) {
-        const ensCol = responsablesData.Enseignant || responsablesData.enseignant || [];
+      // Identifier via Responsables d'abord
+      if (responsablesData && responsablesData.id.length === 1) {
+        const ensCol = responsablesData.Enseignant || [];
         const ensRowId = ensCol[0];
         if (ensRowId) {
           const idx = enseignantsData.id.indexOf(ensRowId);
           if (idx !== -1) {
-            enseignantRowId = ensRowId;
-            const disciplineCol = enseignantsData.Discipline || null;
-            const campusCol = enseignantsData.Campus || null;
-            enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
-            enseignantCampus = campusCol ? campusCol[idx] : null;
-            const nomCol = enseignantsData.Nom || null;
-            const prenomCol = enseignantsData.Prenom || null;
-            const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Responsable';
-            document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span> (Responsable)';
-            hideError();
-            render();
+            identifierEnseignant(idx);
             loading = false;
             return;
           }
         }
       }
 
-      // 3. Sinon : enseignant normal — une seule ligne visible dans Enseignants
+      // Enseignant normal
       if (enseignantsData.id.length === 1) {
-        const idx = 0;
-        enseignantRowId = enseignantsData.id[idx];
-        const disciplineCol = enseignantsData.Discipline || null;
-        const campusCol = enseignantsData.Campus || null;
-        enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
-        enseignantCampus = campusCol ? campusCol[idx] : null;
-        const nomCol = enseignantsData.Nom || null;
-        const prenomCol = enseignantsData.Prenom || null;
-        const nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || 'Enseignant';
-        document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
-        hideError();
-        render();
-        loading = false;
-        return;
+        identifierEnseignant(0);
+      } else {
+        afficherSelecteur();
       }
+    } catch(err) { showError('Erreur : ' + err.message); }
+    finally { loading = false; }
+  }
 
-      // Fallback sélecteur manuel (admin)
-      afficherSelecteur();
-
-    } catch(err) {
-      showError('Erreur : ' + err.message);
-    } finally {
-      loading = false;
-    }
+  function identifierEnseignant(idx) {
+    enseignantRowId = enseignantsData.id[idx];
+    enseignantDiscipline = (enseignantsData.Discipline || [])[idx] || null;
+    enseignantCampus = (enseignantsData.Campus || [])[idx] || null;
+    enseignantQuotite = parseFloat((enseignantsData.Quotite || [])[idx]) || 0;
+    enseignantQuotiteMax = parseFloat((enseignantsData.Quotite_max || [])[idx]) || 0;
+    const nom = ((enseignantsData.Nom || [])[idx] || '') + ((enseignantsData.Prenom || [])[idx] ? ' ' + (enseignantsData.Prenom || [])[idx] : '');
+    document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nom + '</span>';
+    hideError();
+    document.getElementById('filtres-box').style.display = 'grid';
+    document.getElementById('compteurs-box').style.display = 'flex';
+    peuplerFiltres();
+    render();
   }
 
   async function reloadCours() {
     const cours = await grist.docApi.fetchTable('Cours');
-    const ids = cours.id;
-    const labels = cours.Cours_label || cours.cours_label || [];
-    const candidats = cours.Candidats || cours.candidats || [];
-    const disciplines = cours.Discipline || cours.discipline || [];
-    const disciplines2 = cours.Discipline_2 || cours.discipline_2 || [];
-    const campus = cours.Campus || cours.campus || [];
-    const cycles = cours.Cycle || cours.cycle || [];
-    const annees = cours.Annee || cours.annee || [];
-    const semestres = cours.Semestre || cours.semestre || [];
-    const options = cours.Option || cours.option || [];
-    tableData = ids.map(function(id, i) {
-      var cands = candidats[i];
+    const candidatsRaw = cours.Candidats || [];
+    tableData = cours.id.map(function(id, i) {
+      var cands = candidatsRaw[i];
       return {
         rowId: id,
-        label: labels[i] || '',
-        discipline: disciplines[i] || null,
-        discipline2: disciplines2[i] || null,
-        campus: campus[i] || null,
-        cycle: cycles[i] || null,
-        annee: annees[i] || null,
-        semestre: semestres[i] || null,
-        option: options[i] || null,
+        label: (cours.Cours_label || [])[i] || '',
+        discipline: (cours.Discipline || [])[i] || null,
+        discipline2: (cours.Discipline_2 || [])[i] || null,
+        campus: (cours.Campus || [])[i] || null,
+        cycle: (cours.Cycle || [])[i] || null,
+        annee: (cours.Annee || [])[i] || null,
+        semestre: (cours.Semestre || [])[i] || null,
+        specialite: (cours.Specialite || [])[i] || null,
+        option: (cours.Option || [])[i] || null,
+        hetd: parseFloat((cours.Volume_hetd || [])[i]) || 0,
+        affecte: (cours.Enseignant_affecte || [])[i] || null,
         candidats: (function(v){ if(!v) return []; if(Array.isArray(v)) return v.filter(function(x){ return typeof x === 'number' && x > 0; }); if(typeof v === 'number' && v > 0) return [v]; return []; })(cands)
       };
     }).filter(function(r) { return r.label.length > 3; });
@@ -234,13 +215,13 @@
 
   function afficherSelecteur() {
     document.getElementById('user-info').textContent = 'Veuillez vous identifier';
-    var nomCol = enseignantsData.Nom || enseignantsData.nom || enseignantsData.Prenom || null;
-    var emailCol = enseignantsData.Email || enseignantsData.email || [];
-    var sel = document.getElementById('enseignant-select');
+    const nomCol = enseignantsData.Nom || [];
+    const prenomCol = enseignantsData.Prenom || [];
+    const sel = document.getElementById('enseignant-select');
     enseignantsData.id.forEach(function(id, i) {
       var opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = nomCol ? nomCol[i] : (emailCol[i] || ('Enseignant #' + id));
+      opt.textContent = (nomCol[i] || '') + (prenomCol[i] ? ' ' + prenomCol[i] : '');
       sel.appendChild(opt);
     });
     document.getElementById('selector-box').style.display = 'block';
@@ -249,18 +230,90 @@
 
   function onSelectEnseignant(val) {
     if (!val) return;
-    enseignantRowId = parseInt(val);
-    var nomCol = enseignantsData.Nom || enseignantsData.nom || null;
-    var prenomCol = enseignantsData.Prenom || enseignantsData.prenom || null;
-    var disciplineCol = enseignantsData.Discipline || enseignantsData.discipline || null;
-    var campusCol = enseignantsData.Campus || enseignantsData.campus || null;
-    var idx = enseignantsData.id.indexOf(enseignantRowId);
-    var nomAffiche = (nomCol ? nomCol[idx] : '') + (prenomCol ? ' ' + prenomCol[idx] : '') || ('Enseignant #' + enseignantRowId);
-    enseignantDiscipline = disciplineCol ? disciplineCol[idx] : null;
-    enseignantCampus = campusCol ? campusCol[idx] : null;
-    document.getElementById('user-info').innerHTML = 'Connecté en tant que <span>' + nomAffiche + '</span>';
+    const idx = enseignantsData.id.indexOf(parseInt(val));
     document.getElementById('selector-box').style.display = 'none';
+    identifierEnseignant(idx);
+  }
+
+  function peuplerFiltres() {
+    var rowsBase = getRowsBase();
+
+    function peuplerSelect(id, vals, label) {
+      var sel = document.getElementById(id);
+      var current = sel.value;
+      sel.innerHTML = '<option value="">' + label + '</option>';
+      [...new Set(vals.filter(function(v){ return v !== null && v !== undefined && String(v).trim() !== ''; }))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
+        var opt = document.createElement('option');
+        opt.value = String(v); opt.textContent = String(v);
+        if (String(v) === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fSpec = document.getElementById('f-specialite').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+
+    peuplerSelect('f-campus', rowsBase.map(function(r){return r.campus;}), 'Tous');
+    var r1 = fCampus ? rowsBase.filter(function(r){return r.campus===fCampus;}) : rowsBase;
+    peuplerSelect('f-cycle', r1.map(function(r){return r.cycle;}), 'Tous');
+    var r2 = fCycle ? r1.filter(function(r){return r.cycle===fCycle;}) : r1;
+    peuplerSelect('f-specialite', r2.map(function(r){return r.specialite;}), 'Toutes');
+    var r3 = fSpec ? r2.filter(function(r){return r.specialite===fSpec;}) : r2;
+    peuplerSelect('f-annee', r3.map(function(r){return r.annee;}), 'Toutes');
+    var r4 = fAnnee ? r3.filter(function(r){return String(r.annee)===fAnnee;}) : r3;
+    peuplerSelect('f-semestre', r4.map(function(r){return r.semestre;}), 'Tous');
+    var r5 = fSemestre ? r4.filter(function(r){return String(r.semestre)===fSemestre;}) : r4;
+    peuplerSelect('f-option', r5.map(function(r){return r.option;}), 'Toutes');
+  }
+
+  function resetFiltres() {
+    ['f-campus','f-cycle','f-specialite','f-annee','f-semestre','f-option'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    peuplerFiltres();
     render();
+  }
+
+  function getRowsBase() {
+    var rows = tableData.slice();
+    // Filtre discipline
+    if (enseignantDiscipline) {
+      rows = rows.filter(function(r) {
+        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
+      });
+    }
+    // Filtre campus
+    if (enseignantCampus) {
+      var campusAutorises = [enseignantCampus];
+      if (enseignantCampus === 'Cergy') campusAutorises.push('Saint-Germain-en-Laye');
+      rows = rows.filter(function(r) { return campusAutorises.indexOf(r.campus) !== -1; });
+    }
+    return rows;
+  }
+
+  function getRowsFiltrees() {
+    var rows = getRowsBase();
+    if (currentTab === 'mes') {
+      rows = rows.filter(function(r) {
+        return r.candidats.indexOf(enseignantRowId) !== -1 || r.affecte === enseignantRowId;
+      });
+    }
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fSpec = document.getElementById('f-specialite').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+    var fOption = document.getElementById('f-option').value;
+    if (fCampus) rows = rows.filter(function(r){return r.campus===fCampus;});
+    if (fCycle) rows = rows.filter(function(r){return r.cycle===fCycle;});
+    if (fSpec) rows = rows.filter(function(r){return r.specialite===fSpec;});
+    if (fAnnee) rows = rows.filter(function(r){return String(r.annee)===fAnnee;});
+    if (fSemestre) rows = rows.filter(function(r){return String(r.semestre)===fSemestre;});
+    if (fOption) rows = rows.filter(function(r){return r.option===fOption;});
+    return rows;
   }
 
   function setTab(tab, btn) {
@@ -270,126 +323,130 @@
     render();
   }
 
-  function peuplerFiltres(rowsBase) {
-    var box = document.getElementById('filtres-box');
-    box.style.display = 'grid';
+  function etatCours(row) {
+    var estCandidat = row.candidats.indexOf(enseignantRowId) !== -1;
+    var estAffecte = row.affecte === enseignantRowId;
+    var autreAffecte = row.affecte && !estAffecte;
+    var affecteSansVoeu = autreAffecte && !estCandidat && row.affecte;
 
-    function peuplerSelect(id, vals, label) {
-      var sel = document.getElementById(id);
-      var current = sel.value;
-      sel.innerHTML = '<option value="">' + label + '</option>';
-      [...new Set(vals.filter(function(v){ return v !== null && v !== undefined && v !== ''; }))].sort(function(a,b){return String(a).localeCompare(String(b),'fr');}).forEach(function(v) {
-        var opt = document.createElement('option');
-        opt.value = v; opt.textContent = v;
-        if (String(v) === current) opt.selected = true;
-        sel.appendChild(opt);
-      });
-    }
-
-    var fCampus = document.getElementById('f-campus').value;
-    var fCycle = document.getElementById('f-cycle').value;
-    var fAnnee = document.getElementById('f-annee').value;
-    var fSemestre = document.getElementById('f-semestre').value;
-
-    // Campus : sur tous les cours de la discipline
-    peuplerSelect('f-campus', rowsBase.map(function(r){return r.campus;}), 'Tous les campus');
-
-    // Cycle : filtré par campus
-    var r1 = fCampus ? rowsBase.filter(function(r){return r.campus === fCampus;}) : rowsBase;
-    peuplerSelect('f-cycle', r1.map(function(r){return r.cycle;}), 'Tous les cycles');
-
-    // Année : filtré par campus + cycle
-    var r2 = fCycle ? r1.filter(function(r){return r.cycle === fCycle;}) : r1;
-    peuplerSelect('f-annee', r2.map(function(r){return String(r.annee);}), 'Toutes les années');
-
-    // Semestre : filtré par campus + cycle + année
-    var r3 = fAnnee ? r2.filter(function(r){return String(r.annee) === fAnnee;}) : r2;
-    peuplerSelect('f-semestre', r3.map(function(r){return String(r.semestre);}), 'Tous les semestres');
-
-    // Option : filtré par campus + cycle + année + semestre
-    var r4 = fSemestre ? r3.filter(function(r){return String(r.semestre) === fSemestre;}) : r3;
-    peuplerSelect('f-option', r4.map(function(r){return r.option;}), 'Toutes les options');
+    if (estAffecte) return 'vert';
+    if (autreAffecte && estCandidat) return 'rouge';
+    if (affecteSansVoeu) return 'gris';
+    if (estCandidat) return 'jaune';
+    return 'blanc';
   }
 
   function render() {
     if (!enseignantRowId) return;
-    var rows = tableData.slice();
-    if (enseignantDiscipline) {
-      rows = rows.filter(function(r) {
-        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
-      });
-    }
-    if (enseignantCampus) {
-      var campusAutorises = [enseignantCampus];
-      if (enseignantCampus === 'Cergy') campusAutorises.push('Saint-Germain-en-Laye');
-      rows = rows.filter(function(r) { return campusAutorises.indexOf(r.campus) !== -1; });
-    }
-    if (currentTab === 'mes') {
-      rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
-    }
+    peuplerFiltres();
 
-    // Peupler les filtres en cascade
-    peuplerFiltres(rows);
+    var rows = getRowsFiltrees();
 
-    // Appliquer les filtres sélectionnés
-    var fCampus = document.getElementById('f-campus').value;
-    var fCycle = document.getElementById('f-cycle').value;
-    var fAnnee = document.getElementById('f-annee').value;
-    var fSemestre = document.getElementById('f-semestre').value;
-    var fOption = document.getElementById('f-option').value;
-    if (fCampus) rows = rows.filter(function(r) { return r.campus === fCampus; });
-    if (fCycle) rows = rows.filter(function(r) { return r.cycle === fCycle; });
-    if (fAnnee) rows = rows.filter(function(r) { return String(r.annee) === fAnnee; });
-    if (fSemestre) rows = rows.filter(function(r) { return String(r.semestre) === fSemestre; });
-    if (fOption) rows = rows.filter(function(r) { return r.option === fOption; });
+    // Compteurs
+    var hCandidatees = 0, hValidees = 0;
+    getRowsBase().forEach(function(r) {
+      if (r.candidats.indexOf(enseignantRowId) !== -1) hCandidatees += r.hetd;
+      if (r.affecte === enseignantRowId) hValidees += r.hetd;
+    });
+    document.getElementById('cpt-candidatees').textContent = hCandidatees.toFixed(1).replace('.0','') + ' h';
+    document.getElementById('cpt-validees').textContent = hValidees.toFixed(1).replace('.0','') + ' h';
+    document.getElementById('cpt-sub-min').textContent = 'Min : ' + enseignantQuotite + ' h · Max : ' + enseignantQuotiteMax + ' h';
+    document.getElementById('cpt-sub-max').textContent = 'Min : ' + enseignantQuotite + ' h · Max : ' + enseignantQuotiteMax + ' h';
+
     var el = document.getElementById('content');
     if (rows.length === 0) {
       el.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><div>' + (currentTab === 'mes' ? "Vous n'avez posé aucun vœu." : 'Aucun cours trouvé.') + '</div></div>';
       return;
     }
-    el.innerHTML = '<div class="cours-list">' + rows.map(cardHTML).join('') + '</div>';
+
+    // Grouper par Cycle+Annee puis Semestre
+    var groupes = {};
+    rows.forEach(function(row) {
+      var groupeLabel = (row.cycle || '') + ' ' + (row.annee || '?');
+      var sem = row.semestre || '?';
+      if (!groupes[groupeLabel]) groupes[groupeLabel] = {};
+      if (!groupes[groupeLabel][sem]) groupes[groupeLabel][sem] = [];
+      groupes[groupeLabel][sem].push(row);
+    });
+
+    var html = '';
+    Object.keys(groupes).sort().forEach(function(groupeLabel) {
+      html += '<div class="groupe-annee"><h2>' + esc(groupeLabel) + '</h2>';
+      Object.keys(groupes[groupeLabel]).sort().forEach(function(sem) {
+        html += '<div class="groupe-semestre"><h3>Semestre ' + esc(sem) + '</h3><div class="cours-list">';
+        groupes[groupeLabel][sem].forEach(function(row) {
+          html += cardHTML(row);
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
   }
 
   function cardHTML(row) {
-    var inscrit = row.candidats.indexOf(enseignantRowId) !== -1;
+    var etat = etatCours(row);
+    var estCandidat = row.candidats.indexOf(enseignantRowId) !== -1;
+    var estAffecte = row.affecte === enseignantRowId;
+    var autreAffecteNom = (row.affecte && !estAffecte) ? nomEnseignant(row.affecte) : null;
     var nb = row.candidats.length;
     var meta = nb === 0 ? 'Aucun candidat' : (nb + ' candidat' + (nb > 1 ? 's' : ''));
-    var labelUp = (row.label || '').toUpperCase();
-    var typeClass = labelUp.indexOf(' CM') !== -1 ? ' cm' : labelUp.indexOf(' TD') !== -1 ? ' td' : labelUp.indexOf(' TP') !== -1 ? ' tp' : '';
-    return '<div class="cours-card' + (inscrit ? ' inscrit' : '') + typeClass + '">'
-      + '<div class="cours-info"><div class="cours-label">' + esc(row.label) + '</div><div class="cours-meta">' + meta + '</div></div>'
-      + (inscrit ? '<span class="badge-inscrit">✓ Inscrit</span>' : '')
-      + (inscrit
-          ? '<button class="btn btn-desinscrire" onclick="desinscrire(' + row.rowId + ')">Me désinscrire</button>'
-          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Candidater</button>')
-      + '</div>';
+
+    var statusHtml = '';
+    if (etat === 'vert') statusHtml = '<div class="cours-status status-vert">✓ Vous êtes affecté(e) sur ce cours</div>';
+    else if (etat === 'rouge') statusHtml = '<div class="cours-status status-rouge">✗ ' + esc(autreAffecteNom) + ' a été affecté(e) à votre place</div>';
+    else if (etat === 'gris') statusHtml = '<div class="cours-status status-gris">Ce cours a été attribué sans votre candidature</div>';
+    else if (etat === 'jaune') statusHtml = '<div class="cours-status status-jaune">★ Vœu posé</div>';
+
+    var btnHtml = '';
+    if (etat === 'gris') {
+      btnHtml = '<button class="btn btn-postuler" disabled>Candidater</button>';
+    } else if (estCandidat) {
+      btnHtml = '<button class="btn btn-desinscrire" onclick="desinscrire(' + row.rowId + ')">Me retirer</button>';
+    } else {
+      btnHtml = '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Candidater</button>';
+    }
+
+    return '<div class="cours-card etat-' + etat + '">' +
+      '<div class="cours-info">' +
+        '<div class="cours-label">' + esc(row.label) + '</div>' +
+        '<div class="cours-meta">' + meta + ' · ' + row.hetd + ' h</div>' +
+        statusHtml +
+      '</div>' +
+      btnHtml +
+      '</div>';
+  }
+
+  function nomEnseignant(rowId) {
+    if (!rowId) return null;
+    var idx = enseignantsData.id.indexOf(rowId);
+    if (idx === -1) return null;
+    return ((enseignantsData.Nom || [])[idx] || '') + ((enseignantsData.Prenom || [])[idx] ? ' ' + (enseignantsData.Prenom || [])[idx] : '');
   }
 
   async function postuler(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
-    disableButtons();
     var row = tableData.find(function(r) { return r.rowId === coursRowId; });
     var newList = row.candidats.concat([enseignantRowId]);
-    await doUpdate(coursRowId, newList, 'Vœu enregistré pour « ' + row.label + ' »');
+    await doUpdate(coursRowId, row, newList, 'Vœu enregistré !');
   }
 
   async function desinscrire(coursRowId) {
     if (busy || !enseignantRowId) return;
     busy = true;
-    disableButtons();
     var row = tableData.find(function(r) { return r.rowId === coursRowId; });
     var newList = row.candidats.filter(function(id) { return id !== enseignantRowId; });
-    await doUpdate(coursRowId, newList, 'Désinscription effectuée');
+    await doUpdate(coursRowId, row, newList, 'Vœu retiré.');
   }
 
-  async function doUpdate(coursRowId, newList, msg) {
+  async function doUpdate(coursRowId, row, newList, msg) {
     try {
       loading = true;
       await grist.docApi.applyUserActions([
         ['UpdateRecord', 'Cours', coursRowId, { Candidats: newList.length > 0 ? ['L'].concat(newList) : null }]
       ]);
-      var row = tableData.find(function(r) { return r.rowId === coursRowId; });
       if (row) row.candidats = newList;
       showToast(msg, 'success');
       render();
@@ -401,33 +458,19 @@
     }
   }
 
-  function disableButtons() {
-    document.querySelectorAll('.btn').forEach(function(b) { b.disabled = true; });
-  }
-
-  function esc(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+  function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   var toastTimer;
   function showToast(msg, type) {
     var t = document.getElementById('toast');
     t.textContent = msg;
-    t.className = 'show ' + (type || '');
+    t.className = 'show ' + (type||'');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function() { t.className = ''; }, 3000);
   }
 
-  function showError(msg) {
-    var el = document.getElementById('error-box');
-    el.textContent = msg;
-    el.style.display = 'block';
-    document.getElementById('content').innerHTML = '';
-  }
-
-  function hideError() {
-    document.getElementById('error-box').style.display = 'none';
-  }
+  function showError(msg) { document.getElementById('error-box').textContent = msg; document.getElementById('error-box').style.display = 'block'; document.getElementById('content').innerHTML = ''; }
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
 
   initialLoad();
 </script>
