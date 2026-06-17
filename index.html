@@ -54,6 +54,13 @@
   .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
   .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
   .filtre-group select:focus { border-color: var(--accent); }
+
+  .cours-card.cm { border-color: #f0b8b8; background: #fde8e8; }
+  .cours-card.td { border-color: #b8c8f0; background: #e8f0fd; }
+  .cours-card.tp { border-color: #f0dbb8; background: #fdf5e8; }
+  .cours-card.inscrit.cm { border-color: #c0392b; background: #f9d0d0; }
+  .cours-card.inscrit.td { border-color: #2d4a8a; background: #d0daf9; }
+  .cours-card.inscrit.tp { border-color: #8a5a2d; background: #f9ecd0; }
 </style>
 </head>
 <body>
@@ -342,12 +349,14 @@
     var inscrit = row.candidats.indexOf(enseignantRowId) !== -1;
     var nb = row.candidats.length;
     var meta = nb === 0 ? 'Aucun candidat' : (nb + ' candidat' + (nb > 1 ? 's' : ''));
-    return '<div class="cours-card' + (inscrit ? ' inscrit' : '') + '">'
+    var labelUp = (row.label || '').toUpperCase();
+    var typeClass = labelUp.indexOf(' CM') !== -1 ? ' cm' : labelUp.indexOf(' TD') !== -1 ? ' td' : labelUp.indexOf(' TP') !== -1 ? ' tp' : '';
+    return '<div class="cours-card' + (inscrit ? ' inscrit' : '') + typeClass + '">'
       + '<div class="cours-info"><div class="cours-label">' + esc(row.label) + '</div><div class="cours-meta">' + meta + '</div></div>'
       + (inscrit ? '<span class="badge-inscrit">✓ Inscrit</span>' : '')
       + (inscrit
           ? '<button class="btn btn-desinscrire" onclick="desinscrire(' + row.rowId + ')">Me désinscrire</button>'
-          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Candidater</button>')
+          : '<button class="btn btn-postuler" onclick="postuler(' + row.rowId + ')">Je postule</button>')
       + '</div>';
   }
 
