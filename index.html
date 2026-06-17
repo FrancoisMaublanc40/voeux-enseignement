@@ -311,13 +311,6 @@
     peuplerSelect('f-option', r4.map(function(r){return r.option;}), 'Toutes les options');
   }
 
-  function campusAutorises(campusEnseignant) {
-    if (!campusEnseignant) return null;
-    var c = campusEnseignant.toLowerCase();
-    if (c === 'cergy') return ['Cergy', 'Saint-Germain-en-Laye', 'Saint Germain en Laye', 'Saint-Germain'];
-    return [campusEnseignant];
-  }
-
   function render() {
     if (!enseignantRowId) return;
     var rows = tableData.slice();
@@ -326,12 +319,10 @@
         return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
       });
     }
-    // Filtre campus selon règle métier
-    var campus = campusAutorises(enseignantCampus);
-    if (campus) {
-      rows = rows.filter(function(r) {
-        return campus.some(function(c) { return c.toLowerCase() === (r.campus || '').toLowerCase(); });
-      });
+    if (enseignantCampus) {
+      var campusAutorises = [enseignantCampus];
+      if (enseignantCampus === 'Cergy') campusAutorises.push('Saint-Germain-en-Laye');
+      rows = rows.filter(function(r) { return campusAutorises.indexOf(r.campus) !== -1; });
     }
     if (currentTab === 'mes') {
       rows = rows.filter(function(r) { return r.candidats.indexOf(enseignantRowId) !== -1; });
