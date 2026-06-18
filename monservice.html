@@ -79,7 +79,7 @@
 </div>
 
 <div id="total-box" class="total-box" style="display:none">
-  <div class="label">Total heures affectées (HETD)</div>
+  <div class="label">Total heures affectées — prévisionnel (HETD)</div>
   <div class="value" id="total-value">0 h</div>
 </div>
 
@@ -160,8 +160,11 @@
       return {
         rowId: id,
         label: labels[i] || '(sans titre)',
-        hetd: hetd[i] || 0,
-        affecte: affectes[i] || null
+        hetd: parseFloat(hetd[i]) || 0,
+        affecte: affectes[i] || null,
+        cycle: (cours.Cycle || [])[i] || '',
+        annee: (cours.Annee || [])[i] || '',
+        semestre: (cours.Semestre || [])[i] || ''
       };
     });
   }
@@ -199,10 +202,10 @@
       return r.affecte === enseignantRowId;
     });
 
-    var total = rows.reduce(function(sum, r) { return sum + (parseFloat(r.hetd) || 0); }, 0);
+    var total = rows.reduce(function(sum, r) { return sum + r.hetd; }, 0);
     var totalBox = document.getElementById('total-box');
     totalBox.style.display = 'flex';
-    document.getElementById('total-value').textContent = total.toFixed(1).replace('.0', '') + ' h';
+    document.getElementById('total-value').textContent = total.toFixed(2) + ' h (prévisionnel)';
 
     var el = document.getElementById('content');
     if (rows.length === 0) {
@@ -210,14 +213,37 @@
       return;
     }
 
-    el.innerHTML = '<div class="cours-list">' + rows.map(function(row) {
-      return '<div class="cours-card">'
-        + '<div class="cours-info">'
-        + '<div class="cours-label">' + esc(row.label) + '</div>'
-        + '</div>'
-        + '<span class="hetd-badge">' + (parseFloat(row.hetd) || 0) + ' h</span>'
-        + '</div>';
-    }).join('') + '</div>';
+    // Grouper par Cycle+Année puis Semestre
+    var groupes = {};
+    rows.forEach(function(row) {
+      var groupeLabel = (row.cycle || '') + ' ' + (row.annee || '?');
+      var sem = row.semestre || '?';
+      if (!groupes[groupeLabel]) groupes[groupeLabel] = {};
+      if (!groupes[groupeLabel][sem]) groupes[groupeLabel][sem] = [];
+      groupes[groupeLabel][sem].push(row);
+    });
+
+    var html = '';
+    Object.keys(groupes).sort().forEach(function(groupeLabel) {
+      html += '<div style="margin-bottom:28px"><h2 style="font-family:\'DM Serif Display\',serif;font-size:18px;font-weight:400;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--accent)">' + esc(groupeLabel) + '</h2>';
+      Object.keys(groupes[groupeLabel]).sort().forEach(function(sem) {
+        var semRows = groupes[groupeLabel][sem];
+        var totalSem = semRows.reduce(function(s, r) { return s + r.hetd; }, 0);
+        html += '<div style="margin-bottom:16px">';
+        html += '<div style="font-size:13px;font-weight:700;color:white;background:var(--muted);border-radius:6px;padding:5px 12px;display:inline-block;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Semestre ' + esc(sem) + ' — ' + totalSem.toFixed(2) + ' h</div>';
+        html += '<div class="cours-list">';
+        semRows.forEach(function(row) {
+          html += '<div class="cours-card">'
+            + '<div class="cours-info"><div class="cours-label">' + esc(row.label) + '</div></div>'
+            + '<span class="hetd-badge">' + row.hetd.toFixed(2) + ' h</span>'
+            + '</div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
   }
 
   function esc(str) {
