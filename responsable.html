@@ -408,6 +408,19 @@
           var campusAutorises = campusCours === 'Saint-Germain-en-Laye' ? ['Cergy', 'Saint-Germain-en-Laye'] : [campusCours];
           var datalistId = 'enseignants-list-' + row.rowId;
 
+          // Construire liste triée alphabétiquement
+          var enseignantsTries = enseignantsData.id.map(function(id, i) {
+            return {
+              id: id,
+              nom: ((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||''),
+              campus: (enseignantsData.Campus||[])[i] || ''
+            };
+          }).filter(function(e) {
+            return campusAutorises.indexOf(e.campus) !== -1;
+          }).sort(function(a, b) {
+            return a.nom.localeCompare(b.nom, 'fr');
+          });
+
           html += '<div class="cours-card ' + etat + '" id="card-' + row.rowId + '">' +
             '<div class="cours-header" onclick="toggleCard(' + row.rowId + ')">' +
               '<div class="cours-header-left"><div class="cours-title">' + esc(row.label) + '</div>' +
@@ -423,10 +436,8 @@
                 '<button class="btn-affecter" onclick="affecterManuel(' + row.rowId + ')">Affecter</button>' +
               '</div>' +
               '<datalist id="' + datalistId + '">' +
-              enseignantsData.id.map(function(id, i) {
-                var campusEns = (enseignantsData.Campus||[])[i] || '';
-                if (campusAutorises.indexOf(campusEns) === -1) return '';
-                return '<option value="' + esc(((enseignantsData.Nom||[])[i]||'') + ' ' + ((enseignantsData.Prenom||[])[i]||'')) + '">';
+              enseignantsTries.map(function(e) {
+                return '<option value="' + esc(e.nom) + '">';
               }).join('') +
               '</datalist>' +
             '</div></div>';
