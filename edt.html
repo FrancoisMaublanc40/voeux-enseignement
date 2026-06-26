@@ -14,51 +14,29 @@
     --accent-light: #e8f4ee; --shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
-  header { margin-bottom: 24px; }
+  header { margin-bottom: 20px; }
   header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; }
 
-  .filtres {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 20px; margin-bottom: 24px; display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;
-  }
-  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .filtre-group select, .filtre-group input {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
-    background: var(--bg); outline: none; cursor: pointer;
-  }
-  .filtre-group select:focus, .filtre-group input:focus { border-color: var(--accent); }
-
-  .btn-afficher {
-    background: var(--accent); color: white; border: none; border-radius: 7px;
-    padding: 9px 20px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
-    cursor: pointer; align-self: end;
-  }
+  .filtres { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .filtre-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .filtre-group select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); outline: none; cursor: pointer; }
+  .filtre-group select:focus { border-color: var(--accent); }
+  .btn-afficher { background: var(--accent); color: white; border: none; border-radius: 7px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; }
   .btn-afficher:hover { background: #235c42; }
+  .btn-reset { background: var(--bg); color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; width: 100%; margin-top: 4px; }
 
-  .grid-wrapper { overflow-x: auto; }
+  .grid-wrapper { overflow-x: auto; margin-bottom: 24px; }
   table { width: 100%; border-collapse: collapse; min-width: 600px; }
-  th {
-    background: var(--accent); color: white; padding: 10px 14px;
-    font-size: 13px; font-weight: 600; text-align: center; white-space: nowrap;
-  }
+  th { background: var(--accent); color: white; padding: 10px 14px; font-size: 13px; font-weight: 600; text-align: center; white-space: nowrap; }
   th.creneau-col { background: #1a4a35; text-align: left; min-width: 110px; }
   td { border: 1px solid var(--border); vertical-align: top; padding: 0; min-width: 140px; }
-  td.creneau-label {
-    padding: 10px 12px; font-size: 12px; color: var(--muted); font-weight: 500;
-    background: #faf8f4; white-space: nowrap;
-  }
+  td.creneau-label { padding: 10px 12px; font-size: 12px; color: var(--muted); font-weight: 500; background: #faf8f4; white-space: nowrap; }
   td.cell-dispo { padding: 6px 8px; }
   td.cell-vide { background: #f0ece6; }
 
-  .cours-item {
-    background: var(--accent-light); border: 1px solid #b8dcc8; border-radius: 6px;
-    padding: 6px 8px; margin-bottom: 4px; font-size: 12px;
-  }
-  .cours-item .enseignant { font-weight: 600; color: var(--accent); }
-  .cours-item .cours-nom { color: var(--text); margin-top: 2px; font-size: 11px; line-height: 1.3; }
-
+  .cours-item { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; font-size: 12px; }
+  .cours-item .enseignant { font-weight: 600; }
+  .cours-item .cours-nom { margin-top: 2px; font-size: 11px; line-height: 1.3; }
   .cours-item.cm { background: #fde8e8; border-color: #f0b8b8; }
   .cours-item.cm .enseignant { color: #c0392b; }
   .cours-item.td { background: #e8f0fd; border-color: #b8c8f0; }
@@ -66,18 +44,6 @@
   .cours-item.tp { background: #fdf5e8; border-color: #f0dbb8; }
   .cours-item.tp .enseignant { color: #8a5a2d; }
   .cours-item.grised { background: #e8e4de !important; border-color: #d0cbc4 !important; opacity: 0.5; }
-  .cours-item.placed { background: #c8e8d8 !important; border-color: var(--accent) !important; }
-  .cours-item.exclu { background: #f0ece6 !important; border-color: #d0cbc4 !important; opacity: 0.4; pointer-events: none; }
-  .cours-item.exclu .corbeille { pointer-events: all; opacity: 1; }
-
-  .cours-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
-  .corbeille {
-    background: none; border: none; cursor: pointer; font-size: 13px; padding: 0 2px;
-    opacity: 0.7; transition: opacity 0.15s; flex-shrink: 0; line-height: 1; filter: grayscale(0.3);
-  }
-  .corbeille:hover { opacity: 1; filter: none; }
-  .corbeille.active { opacity: 1; color: #c0392b; filter: none; }
-
   .cours-item.placed-cm { background: #e74c3c !important; border-color: #c0392b !important; }
   .cours-item.placed-cm .enseignant, .cours-item.placed-cm .cours-nom { color: white !important; }
   .cours-item.placed-td { background: #2d4a8a !important; border-color: #1a2f5a !important; }
@@ -85,6 +51,20 @@
   .cours-item.placed-tp { background: #8a5a2d !important; border-color: #5a3a1a !important; }
   .cours-item.placed-tp .enseignant, .cours-item.placed-tp .cours-nom { color: white !important; }
   .cours-item.placed-default { background: #c8e8d8 !important; border-color: var(--accent) !important; }
+  .cours-item.exclu { background: #f0ece6 !important; border-color: #d0cbc4 !important; opacity: 0.4; pointer-events: none; }
+  .cours-item.exclu .corbeille { pointer-events: all; opacity: 1; }
+
+  .cours-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+  .corbeille { background: none; border: none; cursor: pointer; font-size: 13px; padding: 0 2px; opacity: 0.7; transition: opacity 0.15s; flex-shrink: 0; line-height: 1; }
+  .corbeille:hover { opacity: 1; }
+  .corbeille.active { opacity: 1; color: #c0392b; }
+
+  .non-couverts { margin-top: 24px; }
+  .non-couverts h2 { font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 400; color: #c0392b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f0b8b8; }
+  .nc-list { display: flex; flex-direction: column; gap: 8px; }
+  .nc-item { border-radius: 8px; padding: 10px 14px; font-size: 13px; }
+  .nc-item .nc-label { font-weight: 500; }
+  .nc-item .nc-raison { font-size: 11px; color: #c0392b; margin-top: 3px; }
 
   .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
   .loader { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
@@ -100,28 +80,15 @@
 <div id="error-box" class="error-box" style="display:none"></div>
 
 <div class="filtres">
-  <div class="filtre-group">
-    <label>Campus</label>
-    <select id="f-campus" onchange="updateFiltres()"><option value="">--</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Cycle</label>
-    <select id="f-cycle" onchange="updateFiltres()"><option value="">--</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Année</label>
-    <select id="f-annee" onchange="updateFiltres()"><option value="">--</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Semestre</label>
-    <select id="f-semestre" onchange="updateFiltres()"><option value="">--</option></select>
-  </div>
-  <div class="filtre-group">
-    <label>Option</label>
-    <select id="f-option" onchange="updateFiltres()"><option value="">--</option></select>
-  </div>
-  <div class="filtre-group">
+  <div class="filtre-group"><label>Campus</label><select id="f-campus" onchange="updateFiltres('campus')"><option value="">--</option></select></div>
+  <div class="filtre-group"><label>Cycle</label><select id="f-cycle" onchange="updateFiltres('cycle')"><option value="">--</option></select></div>
+  <div class="filtre-group"><label>Spécialité</label><select id="f-specialite" onchange="updateFiltres('specialite')"><option value="">--</option></select></div>
+  <div class="filtre-group"><label>Année</label><select id="f-annee" onchange="updateFiltres('annee')"><option value="">--</option></select></div>
+  <div class="filtre-group"><label>Semestre</label><select id="f-semestre" onchange="updateFiltres('semestre')"><option value="">--</option></select></div>
+  <div class="filtre-group"><label>Option</label><select id="f-option" onchange="updateFiltres('option')"><option value="">--</option></select></div>
+  <div class="filtre-group" style="display:flex;flex-direction:column;justify-content:flex-end">
     <button class="btn-afficher" onclick="renderGrille()">Afficher</button>
+    <button class="btn-reset" onclick="resetFiltres()">↺ Réinitialiser</button>
   </div>
 </div>
 
@@ -141,12 +108,16 @@
   let coursData = [];
   let enseignantsData = null;
   let dispoData = [];
+  let placed = {};
+  let excluded = new Set();
+  let loaded = false;
 
   grist.ready({ requiredAccess: 'full' });
-  grist.onOptions(function() { initialLoad(); });
-  grist.on('message', async function(e) { if (e.tableId) await initialLoad(); });
+  grist.onOptions(function() { if (!loaded) initialLoad(); });
+  grist.on('message', async function(e) { if (e.tableId && !loaded) await initialLoad(); });
 
   async function initialLoad() {
+    loaded = true;
     try {
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
       const cours = await grist.docApi.fetchTable('Cours');
@@ -156,12 +127,14 @@
           label: (cours.Cours_label || [])[i] || '',
           campus: (cours.Campus || [])[i] || '',
           cycle: (cours.Cycle || [])[i] || '',
+          specialite: (cours.Specialite || [])[i] || '',
           annee: (cours.Annee || [])[i] || '',
           semestre: (cours.Semestre || [])[i] || '',
           option: (cours.Option || [])[i] || '',
           affecte: (cours.Enseignant_affecte || [])[i] || null
         };
-      });
+      }).filter(function(r) { return r.label.length > 3; });
+
       const dispo = await grist.docApi.fetchTable('Disponibilites');
       dispoData = dispo.id.map(function(id, i) {
         return {
@@ -170,60 +143,72 @@
           creneau: (dispo.Creneau || [])[i] || ''
         };
       });
-      peuplerFiltres();
+
+      peuplerFiltresInitial();
     } catch(err) { showError('Erreur : ' + err.message); }
   }
 
-  function valuesUniques(arr) {
-    return [...new Set(arr.filter(Boolean))].sort(function(a,b) { return String(a).localeCompare(String(b), 'fr'); });
+  function uniques(arr) {
+    return [...new Set(arr.filter(function(v){ return v !== null && v !== undefined && String(v).trim() !== ''; }))].sort(function(a,b){ return String(a).localeCompare(String(b),'fr'); });
   }
 
-  function peuplerFiltres() {
-    peuplerSelect('f-campus', valuesUniques(coursData.map(function(c){return c.campus;})));
-    peuplerSelect('f-cycle', valuesUniques(coursData.map(function(c){return c.cycle;})));
-    peuplerSelect('f-annee', valuesUniques(coursData.map(function(c){return c.annee;})));
-    peuplerSelect('f-semestre', valuesUniques(coursData.map(function(c){return c.semestre;})));
-    peuplerSelect('f-option', valuesUniques(coursData.map(function(c){return c.option;})));
-  }
-
-  function peuplerSelect(id, values) {
+  function peuplerSelect(id, vals, label) {
     var sel = document.getElementById(id);
     var current = sel.value;
-    sel.innerHTML = '<option value="">--</option>';
-    values.forEach(function(v) {
+    sel.innerHTML = '<option value="">' + (label || '--') + '</option>';
+    vals.forEach(function(v) {
       var opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = v;
+      opt.value = String(v); opt.textContent = String(v);
       if (String(v) === current) opt.selected = true;
       sel.appendChild(opt);
     });
   }
 
-  function updateFiltres() {
-    var campus = document.getElementById('f-campus').value;
-    var cycle = document.getElementById('f-cycle').value;
-    var annee = document.getElementById('f-annee').value;
-    var semestre = document.getElementById('f-semestre').value;
-    var option = document.getElementById('f-option').value;
+  function peuplerFiltresInitial() {
+    peuplerSelect('f-campus', uniques(coursData.map(function(c){return c.campus;})));
+    peuplerSelect('f-cycle', uniques(coursData.map(function(c){return c.cycle;})));
+    peuplerSelect('f-specialite', uniques(coursData.map(function(c){return c.specialite;})));
+    peuplerSelect('f-annee', uniques(coursData.map(function(c){return c.annee;})));
+    peuplerSelect('f-semestre', uniques(coursData.map(function(c){return c.semestre;})));
+    peuplerSelect('f-option', uniques(coursData.map(function(c){return c.option;})));
+  }
 
-    var filtered = coursData.filter(function(c) {
-      return (!campus || c.campus === campus) &&
-             (!cycle || c.cycle === cycle) &&
-             (!annee || String(c.annee) === String(annee)) &&
-             (!semestre || String(c.semestre) === String(semestre)) &&
-             (!option || c.option === option);
+  function updateFiltres(changed) {
+    var fCampus = document.getElementById('f-campus').value;
+    var fCycle = document.getElementById('f-cycle').value;
+    var fSpec = document.getElementById('f-specialite').value;
+    var fAnnee = document.getElementById('f-annee').value;
+    var fSemestre = document.getElementById('f-semestre').value;
+
+    var r0 = coursData;
+    var r1 = fCampus ? r0.filter(function(c){return c.campus===fCampus;}) : r0;
+    var r2 = fCycle ? r1.filter(function(c){return c.cycle===fCycle;}) : r1;
+    var r3 = fSpec ? r2.filter(function(c){return c.specialite===fSpec;}) : r2;
+    var r4 = fAnnee ? r3.filter(function(c){return String(c.annee)===fAnnee;}) : r3;
+    var r5 = fSemestre ? r4.filter(function(c){return String(c.semestre)===fSemestre;}) : r4;
+
+    if (changed !== 'campus') {} else peuplerSelect('f-cycle', uniques(r1.map(function(c){return c.cycle;})));
+    if (changed === 'campus' || changed === 'cycle') peuplerSelect('f-specialite', uniques(r2.map(function(c){return c.specialite;})));
+    if (changed === 'campus' || changed === 'cycle' || changed === 'specialite') peuplerSelect('f-annee', uniques(r3.map(function(c){return c.annee;})));
+    if (changed !== 'semestre' && changed !== 'option') peuplerSelect('f-semestre', uniques(r4.map(function(c){return c.semestre;})));
+    peuplerSelect('f-option', uniques(r5.map(function(c){return c.option;})));
+  }
+
+  function resetFiltres() {
+    ['f-campus','f-cycle','f-specialite','f-annee','f-semestre','f-option'].forEach(function(id){
+      document.getElementById(id).value = '';
     });
-
-    if (campus) peuplerSelect('f-cycle', valuesUniques(filtered.map(function(c){return c.cycle;})));
-    if (cycle) peuplerSelect('f-annee', valuesUniques(filtered.map(function(c){return c.annee;})));
-    if (annee) peuplerSelect('f-semestre', valuesUniques(filtered.map(function(c){return c.semestre;})));
-    if (semestre) peuplerSelect('f-option', valuesUniques(filtered.map(function(c){return c.option;})));
+    peuplerFiltresInitial();
+    document.getElementById('content').innerHTML = '<div class="empty-state">Sélectionnez une formation puis cliquez sur "Afficher".</div>';
+    placed = {};
+    excluded = new Set();
   }
 
   function getFiltre() {
     return {
       campus: document.getElementById('f-campus').value,
       cycle: document.getElementById('f-cycle').value,
+      specialite: document.getElementById('f-specialite').value,
       annee: document.getElementById('f-annee').value,
       semestre: document.getElementById('f-semestre').value,
       option: document.getElementById('f-option').value
@@ -234,36 +219,37 @@
     if (!rowId) return null;
     var idx = enseignantsData.id.indexOf(rowId);
     if (idx === -1) return null;
-    var nom = (enseignantsData.Nom || [])[idx] || '';
-    var prenom = (enseignantsData.Prenom || [])[idx] || '';
-    return nom + (prenom ? ' ' + prenom : '');
+    return ((enseignantsData.Nom||[])[idx]||'') + ((enseignantsData.Prenom||[])[idx] ? ' '+(enseignantsData.Prenom||[])[idx] : '');
   }
 
-  let placed = {}; // "coursRowId||ensRowId" → "jour|creneau"
-  let excluded = new Set(); // "coursRowId||ensRowId||jour||creneau"
+  function typeClass(label) {
+    var u = (label||'').toUpperCase();
+    if (u.indexOf(' CM') !== -1) return 'cm';
+    if (u.indexOf(' TD') !== -1) return 'td';
+    if (u.indexOf(' TP') !== -1) return 'tp';
+    return '';
+  }
 
   function renderGrille() {
     var f = getFiltre();
     if (!f.campus || !f.cycle || !f.annee || !f.semestre) {
-      document.getElementById('content').innerHTML = '<div class="empty-state">Veuillez sélectionner Campus, Cycle, Année et Semestre.</div>';
+      document.getElementById('content').innerHTML = '<div class="empty-state">Veuillez sélectionner au minimum Campus, Cycle, Année et Semestre.</div>';
       return;
     }
 
-    // Cours de la formation sélectionnée avec un enseignant affecté
     var coursFormation = coursData.filter(function(c) {
       return c.campus === f.campus && c.cycle === f.cycle &&
+             (!f.specialite || c.specialite === f.specialite) &&
              String(c.annee) === String(f.annee) && String(c.semestre) === String(f.semestre) &&
              (!f.option || c.option === f.option) && c.affecte;
     });
 
-    // Index : enseignantRowId → [{rowId, label}]
     var enseignantCours = {};
     coursFormation.forEach(function(c) {
       if (!enseignantCours[c.affecte]) enseignantCours[c.affecte] = [];
       enseignantCours[c.affecte].push({ rowId: c.rowId, label: c.label });
     });
 
-    // Index disponibilités : "ensRowId|jour|creneau" → true
     var dispoIndex = new Set();
     dispoData.forEach(function(d) {
       dispoIndex.add(d.enseignant + '|' + d.jour + '|' + d.creneau);
@@ -279,15 +265,13 @@
         if (!CRENEAUX[jour].includes(creneau)) {
           html += '<td class="cell-vide"></td>';
         } else {
-          // Enseignants affectés à un cours de cette formation ET disponibles sur ce créneau
           var items = [];
           Object.keys(enseignantCours).forEach(function(ensId) {
             ensId = parseInt(ensId);
             if (dispoIndex.has(ensId + '|' + jour + '|' + creneau)) {
               var nom = nomEnseignant(ensId);
-              var cours = enseignantCours[ensId];
               if (nom) {
-                cours.forEach(function(c) {
+                enseignantCours[ensId].forEach(function(c) {
                   items.push({ nom: nom, label: c.label, coursRowId: c.rowId, ensId: ensId });
                 });
               }
@@ -306,31 +290,23 @@
                 var isExclu = excluded.has(exclKey);
                 var ensPlacedOnSlot = Object.keys(placed).some(function(k) {
                   var parts = k.split('||');
-                  var kEnsId = parseInt(parts[1]);
-                  return kEnsId === item.ensId && placed[k] === (jour + '|' + creneau) && k !== key;
+                  return parseInt(parts[1]) === item.ensId && placed[k] === (jour + '|' + creneau) && k !== key;
                 });
                 var isGrised = (placedSlot && !isPlaced) || ensPlacedOnSlot;
+                var tc = typeClass(item.label);
+                var classes = 'cours-item ' + tc + (isGrised ? ' grised' : '') + (isPlaced ? ' placed-' + (tc||'default') : '') + (isExclu ? ' exclu' : '');
 
-                // Déterminer le type CM/TD/TP depuis le label
-                var typeClass = '';
-                var labelUp = (item.label || '').toUpperCase();
-                if (labelUp.indexOf(' CM') !== -1) typeClass = 'cm';
-                else if (labelUp.indexOf(' TD') !== -1) typeClass = 'td';
-                else if (labelUp.indexOf(' TP') !== -1) typeClass = 'tp';
-
-                var classes = 'cours-item ' + typeClass + (isGrised ? ' grised' : '') + (isPlaced ? ' placed-' + (typeClass || 'default') : '') + (isExclu ? ' exclu' : '');
                 return '<div class="' + classes + '">' +
                   '<div class="cours-item-header">' +
-                  '<label style="display:flex;align-items:flex-start;gap:6px;cursor:' + (isGrised || isExclu ? 'default' : 'pointer') + ';flex:1">' +
-                  '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised || isExclu ? 'disabled ' : '') +
-                  ' onchange="togglePlace(' + item.coursRowId + ',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent)">' +
+                  '<label style="display:flex;align-items:flex-start;gap:5px;cursor:' + (isGrised||isExclu ? 'default' : 'pointer') + ';flex:1">' +
+                  '<input type="checkbox" ' + (isPlaced ? 'checked ' : '') + (isGrised||isExclu ? 'disabled ' : '') +
+                  ' onchange="togglePlace(' + item.coursRowId + ',' + item.ensId + ',\'' + jour + '\',\'' + creneau + '\',this)" style="margin-top:2px;accent-color:var(--accent);flex-shrink:0">' +
                   '<div><div class="enseignant">' + esc(item.nom) + '</div>' +
                   '<div class="cours-nom">' + esc(item.label) + '</div></div>' +
                   '</label>' +
                   '<button class="corbeille' + (isExclu ? ' active' : '') + '" onclick="toggleExclu(\'' + exclKey + '\')" title="' + (isExclu ? 'Réactiver' : 'Exclure') + '">🗑</button>' +
                   '</div></div>';
-              }).join('') +
-            '</td>';
+              }).join('') + '</td>';
           }
         }
       });
@@ -340,36 +316,22 @@
     html += '</tbody></table></div>';
 
     // Cours non couverts
-    var nonCouverts = coursFormation.filter(function(c) {
-      if (!c.affecte) return true;
-      // L'enseignant n'a aucune dispo
-      var aDispo = dispoData.some(function(d) { return d.enseignant === c.affecte; });
-      return !aDispo;
-    });
-
-    // Cours sans enseignant affecté dans la formation
-    var sansEnseignant = coursData.filter(function(c) {
+    var tousNonCouverts = coursData.filter(function(c) {
       return c.campus === f.campus && c.cycle === f.cycle &&
+             (!f.specialite || c.specialite === f.specialite) &&
              String(c.annee) === String(f.annee) && String(c.semestre) === String(f.semestre) &&
-             (!f.option || c.option === f.option) && !c.affecte;
+             (!f.option || c.option === f.option);
+    }).filter(function(c) {
+      if (!c.affecte) return true;
+      return !dispoData.some(function(d) { return d.enseignant === c.affecte; });
     });
-
-    var tousNonCouverts = sansEnseignant.concat(nonCouverts.filter(function(c) { return c.affecte; }));
 
     if (tousNonCouverts.length > 0) {
-      html += '<div style="margin-top:24px"><h2 style="font-family:\'DM Serif Display\',serif;font-size:18px;font-weight:400;color:#c0392b;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f0b8b8">⚠ Cours non couverts (' + tousNonCouverts.length + ')</h2>';
-      html += '<div style="display:flex;flex-direction:column;gap:8px">';
+      html += '<div class="non-couverts"><h2>⚠ Cours non couverts (' + tousNonCouverts.length + ')</h2><div class="nc-list">';
       tousNonCouverts.forEach(function(c) {
-        var typeClass = '';
-        var labelUp = (c.label || '').toUpperCase();
-        if (labelUp.indexOf(' CM') !== -1) typeClass = 'cm';
-        else if (labelUp.indexOf(' TD') !== -1) typeClass = 'td';
-        else if (labelUp.indexOf(' TP') !== -1) typeClass = 'tp';
-        var raison = !c.affecte ? 'Aucun enseignant affecté' : 'Enseignant affecté sans disponibilités renseignées (' + (nomEnseignant(c.affecte) || '?') + ')';
-        html += '<div class="cours-item ' + typeClass + '" style="opacity:0.8">' +
-          '<div class="enseignant">' + esc(c.label) + '</div>' +
-          '<div class="cours-nom" style="color:#c0392b;margin-top:2px">' + esc(raison) + '</div>' +
-          '</div>';
+        var tc = typeClass(c.label);
+        var raison = !c.affecte ? 'Aucun enseignant affecté' : 'Enseignant affecté sans disponibilités (' + (nomEnseignant(c.affecte)||'?') + ')';
+        html += '<div class="nc-item cours-item ' + tc + '"><div class="nc-label">' + esc(c.label) + '</div><div class="nc-raison">' + esc(raison) + '</div></div>';
       });
       html += '</div></div>';
     }
@@ -377,42 +339,32 @@
     document.getElementById('content').innerHTML = html;
   }
 
+  function togglePlace(coursRowId, ensId, jour, creneau, checkbox) {
+    var key = coursRowId + '||' + ensId;
+    if (checkbox.checked) placed[key] = jour + '|' + creneau;
+    else delete placed[key];
+    renderGrille();
+  }
+
   function toggleExclu(exclKey) {
     if (excluded.has(exclKey)) {
       excluded.delete(exclKey);
     } else {
       excluded.add(exclKey);
-      // Si ce cours était placé sur ce créneau, le déplacer
       var parts = exclKey.split('||');
       var key = parts[0] + '||' + parts[1];
-      var slot = parts[2] + '|' + parts[3];
-      if (placed[key] === slot) delete placed[key];
+      if (placed[key] === parts[2] + '|' + parts[3]) delete placed[key];
     }
     renderGrille();
   }
 
-  function togglePlace(coursRowId, ensId, jour, creneau, checkbox) {
-    var key = coursRowId + '||' + ensId;
-    if (checkbox.checked) {
-      placed[key] = jour + '|' + creneau;
-    } else {
-      delete placed[key];
-    }
-    renderGrille();
+  function resetFiltresEtGrille() {
+    resetFiltres();
   }
 
-  function escAttr(str) {
-    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  }
+  function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  function esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function showError(msg) {
-    document.getElementById('error-box').textContent = msg;
-    document.getElementById('error-box').style.display = 'block';
-  }
+  function showError(msg) { document.getElementById('error-box').textContent = msg; document.getElementById('error-box').style.display = 'block'; }
 
   initialLoad();
 </script>
