@@ -96,14 +96,26 @@
 
 <script>
   const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-  const CRENEAUX = {
+  const CRENEAUX_CERGY = {
     'Lundi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Mardi':    ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Mercredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'],
     'Jeudi':    ['8h30-10h', '10h15-11h45'],
     'Vendredi': ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45']
   };
-  const ALL_CRENEAUX = ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'];
+  const ALL_CRENEAUX_CERGY = ['8h30-10h', '10h15-11h45', '12h-13h30', '13h-14h30', '14h45-16h15', '16h30-18h', '18h15-19h45'];
+
+  const CRENEAUX_PAU = {
+    'Lundi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Mardi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Mercredi': ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Jeudi':    ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'],
+    'Vendredi': ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15']
+  };
+  const ALL_CRENEAUX_PAU = ['8h-9h30', '9h45-11h15', '11h30-13h', '14h15-15h45', '16h00-17h30', '17h45-19h15'];
+
+  function getCRENEAUX(campus) { return campus === 'Pau' ? CRENEAUX_PAU : CRENEAUX_CERGY; }
+  function getAllCRENEAUX(campus) { return campus === 'Pau' ? ALL_CRENEAUX_PAU : ALL_CRENEAUX_CERGY; }
 
   let coursData = [];
   let enseignantsData = null;
@@ -254,6 +266,9 @@
     dispoData.forEach(function(d) {
       dispoIndex.add(d.enseignant + '|' + d.jour + '|' + d.creneau);
     });
+
+    var CRENEAUX = getCRENEAUX(f.campus);
+    var ALL_CRENEAUX = getAllCRENEAUX(f.campus);
 
     var html = '<div class="grid-wrapper"><table><thead><tr><th class="creneau-col">Créneau</th>';
     JOURS.forEach(function(j) { html += '<th>' + j + '</th>'; });
