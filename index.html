@@ -256,7 +256,11 @@
     var fAnnee = document.getElementById('f-annee').value;
     var fSemestre = document.getElementById('f-semestre').value;
 
-    peuplerSelect('f-campus', rowsBase.map(function(r){return r.campus;}), 'Tous');
+    // Campus : afficher tous les campus disponibles dans rowsBase (inclut Saint-Germain-en-Laye)
+    var campusAutorises = enseignantCampus ? 
+      (enseignantCampus === 'Cergy' ? ['Cergy', 'Saint-Germain-en-Laye'] : [enseignantCampus]) 
+      : [...new Set(rowsBase.map(function(r){return r.campus;}).filter(Boolean))].sort();
+    peuplerSelect('f-campus', campusAutorises, 'Tous');
     var r1 = fCampus ? rowsBase.filter(function(r){return r.campus===fCampus;}) : rowsBase;
     peuplerSelect('f-cycle', r1.map(function(r){return r.cycle;}), 'Tous');
     var r2 = fCycle ? r1.filter(function(r){return r.cycle===fCycle;}) : r1;
