@@ -132,6 +132,7 @@
   let enseignantsData = null;
   let enseignantRowId = null;
   let enseignantDiscipline = null;
+  let enseignantDiscipline2 = null;
   let enseignantCampus = null;
   let enseignantQuotite = 0;
   let enseignantQuotiteMax = 0;
@@ -178,6 +179,7 @@
   function identifierEnseignant(idx) {
     enseignantRowId = enseignantsData.id[idx];
     enseignantDiscipline = (enseignantsData.Discipline || [])[idx] || null;
+    enseignantDiscipline2 = (enseignantsData.Discipline_2 || [])[idx] || null;
     enseignantCampus = (enseignantsData.Campus || [])[idx] || null;
     enseignantQuotite = parseFloat((enseignantsData.Quotite || [])[idx]) || 0;
     enseignantQuotiteMax = parseFloat((enseignantsData.Quotite_max || [])[idx]) || 0;
@@ -280,10 +282,13 @@
 
   function getRowsBase() {
     var rows = tableData.slice();
-    // Filtre discipline
+    // Filtre discipline (discipline 1 ou discipline 2 de l'enseignant)
     if (enseignantDiscipline) {
       rows = rows.filter(function(r) {
-        return r.discipline === enseignantDiscipline || r.discipline2 === enseignantDiscipline;
+        return r.discipline === enseignantDiscipline ||
+               r.discipline2 === enseignantDiscipline ||
+               (enseignantDiscipline2 && r.discipline === enseignantDiscipline2) ||
+               (enseignantDiscipline2 && r.discipline2 === enseignantDiscipline2);
       });
     }
     // Filtre campus
