@@ -235,7 +235,9 @@
 
   function coursDansPerimetre(row) {
     return responsablePerimetres.some(function(p) {
-      return p.campus === row.campus && p.cycle === row.cycle && p.specialite === row.specialite;
+      var campusMatch = p.campus === row.campus ||
+        (p.campus === 'Cergy' && row.campus === 'Saint-Germain-en-Laye');
+      return campusMatch && p.cycle === row.cycle && p.specialite === row.specialite;
     });
   }
 
@@ -368,6 +370,14 @@
       if (!groupes[groupeLabel]) groupes[groupeLabel] = { annee: row.annee, semestres: {} };
       if (!groupes[groupeLabel].semestres[semestre]) groupes[groupeLabel].semestres[semestre] = [];
       groupes[groupeLabel].semestres[semestre].push(row);
+    });
+
+    // Trier alphabétiquement dans chaque groupe
+    Object.keys(groupes).forEach(function(g) {
+      Object.keys(groupes[g].semestres).forEach(function(s) {
+        groupes[g].semestres[s].sort(function(a, b) { return a.label.localeCompare(b.label, 'fr'); });
+      });
+    });
     });
 
     var html = '';
