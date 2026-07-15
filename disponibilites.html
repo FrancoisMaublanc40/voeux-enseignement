@@ -116,14 +116,14 @@
 
       enseignantsData = await grist.docApi.fetchTable('Enseignants');
 
-      // Si une ligne dans Responsables → responsable identifié
-      if (responsablesData && responsablesData.id.length === 1) {
+      // Si lignes dans Responsables → responsable identifié
+      if (responsablesData && responsablesData.id.length >= 1) {
         const ensCol = responsablesData.Enseignant || [];
-        const ensRowId = ensCol[0];
-        if (ensRowId) {
-          const idx = enseignantsData.id.indexOf(ensRowId);
+        const ensIds = [...new Set(ensCol.filter(Boolean))];
+        if (ensIds.length === 1) {
+          const idx = enseignantsData.id.indexOf(ensIds[0]);
           if (idx !== -1) {
-            enseignantRowId = ensRowId;
+            enseignantRowId = ensIds[0];
             campusEnseignant = (enseignantsData.Campus || [])[idx] || 'Cergy';
             afficherNom(idx);
             await chargerDispos();
