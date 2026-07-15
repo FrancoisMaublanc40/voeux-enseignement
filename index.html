@@ -153,11 +153,11 @@
       await reloadCours();
 
       // Identifier via Responsables d'abord
-      if (responsablesData && responsablesData.id.length === 1) {
+      if (responsablesData && responsablesData.id.length >= 1) {
         const ensCol = responsablesData.Enseignant || [];
-        const ensRowId = ensCol[0];
-        if (ensRowId) {
-          const idx = enseignantsData.id.indexOf(ensRowId);
+        const ensIds = [...new Set(ensCol.filter(Boolean))];
+        if (ensIds.length === 1) {
+          const idx = enseignantsData.id.indexOf(ensIds[0]);
           if (idx !== -1) {
             identifierEnseignant(idx);
             loading = false;
@@ -423,7 +423,7 @@
 
     return '<div class="cours-card etat-' + etat + '">' +
       '<div class="cours-info">' +
-        '<div class="cours-label">' + esc(row.label) + '</div>' +
+        '<div class="cours-label">' + esc(row.label) + (row.option ? ' (' + esc(row.option) + ')' : '') + '</div>' +
         '<div class="cours-meta">' + meta + ' · ' + row.hetd + ' h</div>' +
         statusHtml +
       '</div>' +
